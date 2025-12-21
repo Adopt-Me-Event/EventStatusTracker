@@ -1,32 +1,33 @@
 const express = require('express');
-const path = require('path'); // This helps find files reliably
+const path = require('path');
 const app = express();
-
 app.use(express.json());
 
-let players = {};
+let players = {}; 
 
-// 1. THE FIX: This tells the server exactly what to show at the URL
+// This serves your dashboard page
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'index.html'));
 });
 
-// 2. This is the API for the dashboard data
+// This sends the data to your dashboard
 app.get('/api/data', (req, res) => {
     res.json(players);
 });
 
-// 3. This receives data from Roblox
+// This receives data from your Roblox accounts
 app.post('/update', (req, res) => {
     const data = req.body;
     players[data.playerName] = {
-        ...data,
+        bucks: data.bucks,
+        gingerbread: data.gingerbread,
+        humbug: data.humbug,
+        sleighball: data.sleighball,
+        starcatch: data.starcatch,
         lastSeen: new Date().toLocaleTimeString()
     };
     res.sendStatus(200);
 });
 
 const PORT = process.env.PORT || 10000;
-app.listen(PORT, () => {
-    console.log(`Multi-account server live on port ${PORT}`);
-});
+app.listen(PORT, () => console.log(`Server live on port ${PORT}`));
