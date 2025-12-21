@@ -5,29 +5,25 @@ app.use(express.json());
 
 let players = {}; 
 
-// This serves your dashboard page
-app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'index.html'));
-});
+// Root page
+app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'index.html')));
 
-// This sends the data to your dashboard
-app.get('/api/data', (req, res) => {
-    res.json(players);
-});
+// API for the website to read
+app.get('/api/data', (req, res) => res.json(players));
 
-// This receives data from your Roblox accounts
+// Receiver for Roblox data
 app.post('/update', (req, res) => {
     const data = req.body;
     players[data.playerName] = {
         bucks: data.bucks,
         gingerbread: data.gingerbread,
-        humbug: data.humbug,
-        sleighball: data.sleighball,
-        starcatch: data.starcatch,
+        humbug: data.humbug,     // Timer 1
+        sleighball: data.sleighball, // Timer 2
+        starcatch: data.starcatch,   // Timer 3
         lastSeen: new Date().toLocaleTimeString()
     };
     res.sendStatus(200);
 });
 
 const PORT = process.env.PORT || 10000;
-app.listen(PORT, () => console.log(`Server live on port ${PORT}`));
+app.listen(PORT, () => console.log("Full Tracker Service Live"));
