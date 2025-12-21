@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Adopt Me Tracker Pro</title>
+    <title>EventSploit DashBoard v1.6.0.7.1</title>
     <style>
-        :root { --neon: #00ffcc; --bg: #0a0a0a; --card-bg: #111; --rainbow: conic-gradient(#ff0, #0f0, #0ff, #00f, #f0f, #f00, #ff0); }
+        :root { --neon-green: #00ff66; --bg: #0a0a0a; --card-bg: #111; --rainbow: conic-gradient(#ff0, #0f0, #0ff, #00f, #f0f, #f00, #ff0); }
         body { background: var(--bg); color: white; font-family: 'Segoe UI', sans-serif; margin: 0; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
 
         /* Rainbow Frame */
@@ -12,40 +12,44 @@
         @keyframes rotate { 100% { transform: rotate(360deg); } }
         .inner-box { position: relative; background: #161616; padding: 30px; border-radius: 17px; z-index: 2; text-align: center; }
 
-        /* Navigation Tabs */
+        /* Green Buttons */
+        .green-btn { background: var(--neon-green); color: black; padding: 12px 25px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; transition: all 0.3s ease; text-transform: uppercase; letter-spacing: 1px; }
+        .green-btn:hover { background: #00cc55; box-shadow: 0 0 20px var(--neon-green); transform: scale(1.05); }
+
+        /* Tabs */
         .tab-bar { display: flex; gap: 5px; margin: 20px 0; background: #1a1a1a; padding: 5px; border-radius: 10px; width: 90%; max-width: 800px; }
         .tab { flex: 1; padding: 12px; cursor: pointer; border-radius: 8px; color: #888; transition: 0.2s; text-align: center; font-weight: bold; }
-        .tab.active { background: var(--neon); color: black; }
+        .tab.active { background: var(--neon-green); color: black; }
 
-        /* Pages */
         .page { display: none; width: 95%; max-width: 1200px; }
         .page.active { display: block; }
 
-        /* Layout Elements */
-        .card { background: var(--card-bg); border: 2px solid #333; padding: 15px; border-radius: 12px; width: 220px; margin: 10px; cursor: pointer; transition: 0.3s; }
-        .card:hover { border-color: var(--neon); transform: scale(1.03); }
-        .inv-column { background: #161616; padding: 15px; border-radius: 10px; width: 320px; border: 1px solid #333; min-height: 400px; max-height: 600px; overflow-y: auto; }
-        .inv-item { background: #222; padding: 10px; margin: 5px 0; border-radius: 5px; border-left: 3px solid var(--neon); font-size: 0.85em; text-align: left; text-transform: capitalize; }
-        
-        textarea { background: #000; color: #0f0; border: 1px solid #333; width: 100%; height: 200px; border-radius: 10px; padding: 15px; font-family: monospace; resize: none; }
-        .cool-btn { background: transparent; color: white; padding: 10px 20px; border: 2px solid white; border-radius: 8px; cursor: pointer; font-weight: bold; transition: 0.3s; }
-        .cool-btn:hover { background: white; color: black; box-shadow: 0 0 15px white; }
+        /* Alt Cards */
+        .card { background: var(--card-bg); border: 2px solid #333; padding: 15px; border-radius: 12px; width: 240px; margin: 10px; cursor: pointer; transition: 0.3s; }
+        .card:hover { border-color: var(--neon-green); transform: scale(1.03); }
+        .stat-row { display: flex; justify-content: space-between; margin: 5px 0; font-size: 0.9em; }
+        .ready { color: var(--neon-green); font-weight: bold; text-shadow: 0 0 5px var(--neon-green); }
+
+        /* Inventory & Console */
+        .inv-column { background: #161616; padding: 15px; border-radius: 10px; width: 320px; border: 1px solid #333; height: 500px; overflow-y: auto; }
+        .inv-item { background: #222; padding: 8px; margin: 5px 0; border-radius: 4px; border-left: 3px solid var(--neon-green); font-size: 0.85em; text-align: left; text-transform: capitalize; }
+        textarea { background: #000; color: var(--neon-green); border: 1px solid #333; width: 100%; height: 200px; border-radius: 10px; padding: 15px; font-family: monospace; resize: none; outline: none; }
     </style>
 </head>
 <body>
 
     <div id="auth-screen" class="rainbow-frame">
         <div class="inner-box">
-            <h2>SYSTEM ENCRYPTED</h2>
+            <h1 style="margin-top:0; font-size: 1.5em; color: var(--neon-green);">EVENTSPLOIT</h1>
             <input type="text" id="key-input" placeholder="PASTE KEY_ HERE" style="width:80%; padding:10px; background:#000; color:white; border:1px solid #333; margin-bottom:15px; text-align:center;">
-            <button class="cool-btn" style="width:100%" onclick="saveKey()">UNLOCK HUB</button>
+            <button class="green-btn" style="width:100%" onclick="saveKey()">Login</button>
         </div>
     </div>
 
     <div id="main-ui" style="display:none; width:100%;">
         <div style="padding: 15px 40px; display: flex; justify-content: space-between; align-items: center;">
-            <h2 style="color:var(--neon); margin:0;">ADOPT ME HUB</h2>
-            <button class="cool-btn" style="font-size: 0.7em;" onclick="logout()">LOGOUT</button>
+            <h2 style="color:var(--neon-green); margin:0; letter-spacing: 2px;">EVENTSPLOIT DASHBOARD</h2>
+            <button class="green-btn" style="font-size: 0.7em; padding: 8px 15px;" onclick="logout()">Logout</button>
         </div>
 
         <div class="tab-bar" style="margin: 0 auto;">
@@ -59,7 +63,7 @@
         </div>
 
         <div id="page-inv" class="page">
-            <h3 id="inv-title" style="text-align:center; color:var(--neon);">Select an account from Overview</h3>
+            <h3 id="inv-title" style="text-align:center; color:var(--neon-green);">Select an account from Overview</h3>
             <div style="display:flex; justify-content:center; gap:20px; flex-wrap:wrap;">
                 <div class="inv-column"><h4>🐶 PETS</h4><div id="inv-pets"></div></div>
                 <div class="inv-column"><h4>🍔 FOOD</h4><div id="inv-food"></div></div>
@@ -69,11 +73,10 @@
 
         <div id="page-console" class="page">
             <div style="max-width: 700px; margin: 0 auto; background: #161616; padding: 25px; border-radius: 15px; border: 1px solid #333;">
-                <h3 style="margin-top:0; color:var(--neon)">REMOTE EXECUTOR</h3>
-                <label>Target:</label>
+                <h3 style="margin-top:0; color:var(--neon-green)">REMOTE EXECUTOR</h3>
                 <select id="console-target" style="width:100%; padding:12px; background:#000; color:white; border:1px solid #333; margin-bottom:15px; border-radius:8px;"></select>
                 <textarea id="lua-code" placeholder="-- Enter Lua Code..."></textarea>
-                <button class="cool-btn" style="width:100%; margin-top:20px; border-color:var(--neon); color:var(--neon);" onclick="sendCommand()">RUN COMMAND</button>
+                <button class="green-btn" style="width:100%; margin-top:20px;" onclick="sendCommand()">Execute Command</button>
             </div>
         </div>
     </div>
@@ -115,22 +118,16 @@
             if(!selectedUser || !allData[selectedUser]) return;
             document.getElementById('inv-title').innerText = "Inventory: " + selectedUser;
             const inv = allData[selectedUser].inventory || {};
-            
             const fill = (id, list) => {
                 const el = document.getElementById(id);
                 el.innerHTML = "";
-                if(!list || Object.keys(list).length === 0) {
-                    el.innerHTML = '<div style="color:#444; padding:10px;">Empty</div>';
-                    return;
-                }
+                if(!list || Object.keys(list).length === 0) { el.innerHTML = '<div style="color:#444; padding:10px;">Empty</div>'; return; }
                 Object.values(list).forEach(item => {
                     const name = (item.id || "Unknown").replace(/_/g, " ");
                     el.innerHTML += `<div class="inv-item">${name}</div>`;
                 });
             };
-            fill('inv-pets', inv.pets);
-            fill('inv-food', inv.food);
-            fill('inv-gifts', inv.gifts);
+            fill('inv-pets', inv.pets); fill('inv-food', inv.food); fill('inv-gifts', inv.gifts);
         }
 
         async function sendCommand() {
@@ -141,7 +138,7 @@
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({ target, cmd, key: k })
             });
-            alert("Sent!");
+            alert("Command Queued!");
         }
 
         async function load() {
@@ -158,9 +155,13 @@
                     const p = allData[name];
                     grid.innerHTML += `
                         <div class="card" onclick="selectPlayer('${name}')">
-                            <h3 style="margin:0">${name}</h3>
-                            <p>💰 <b>${Number(p.bucks).toLocaleString()}</b></p>
-                            <p>🍪 <b>${Number(p.gingerbread).toLocaleString()}</b></p>
+                            <h3 style="margin:0 0 10px 0; color:var(--neon-green);">${name}</h3>
+                            <div class="stat-row"><span>💰 Bucks:</span> <b>${Number(p.bucks).toLocaleString()}</b></div>
+                            <div class="stat-row"><span>🍪 Ginger:</span> <b>${Number(p.gingerbread).toLocaleString()}</b></div>
+                            <hr style="border:0; border-top:1px solid #333; margin:10px 0;">
+                            <div class="stat-row"><span>🔨 Humbug:</span> <span class="${p.humbug=='READY'?'ready':''}">${p.humbug}</span></div>
+                            <div class="stat-row"><span>🛷 Sleigh:</span> <span class="${p.sleighball=='READY'?'ready':''}">${p.sleighball}</span></div>
+                            <div class="stat-row"><span>⭐ Star:</span> <span class="${p.starcatch=='READY'?'ready':''}">${p.starcatch}</span></div>
                         </div>`;
                 }
                 if(selectedUser) updateInventoryUI();
