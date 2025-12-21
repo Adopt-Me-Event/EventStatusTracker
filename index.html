@@ -1,51 +1,88 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Multi-Tracker (Random Key Mode)</title>
+    <title>Adopt Me Tracker Pro</title>
     <style>
-        body { background: #0a0a0a; color: white; font-family: sans-serif; display: flex; flex-direction: column; align-items: center; padding: 20px; }
-        .login-box { background: #1a1a1a; padding: 30px; border-radius: 10px; border: 1px solid #00ffcc; text-align: center; }
-        input { background: #000; color: #00ffcc; border: 1px solid #333; padding: 10px; width: 280px; margin: 10px 0; }
-        .btn { background: #00ffcc; color: black; padding: 10px 20px; border: none; cursor: pointer; font-weight: bold; }
-        .card { background: #161616; border: 1px solid #333; padding: 15px; width: 200px; border-radius: 8px; margin: 10px; }
-        .nav { width: 100%; display: flex; justify-content: flex-end; padding-bottom: 20px; }
+        :root { --neon: #00ffcc; --bg: #0a0a0a; --card-bg: #161616; }
+        body { background: var(--bg); color: white; font-family: 'Segoe UI', sans-serif; display: flex; flex-direction: column; align-items: center; padding: 20px; margin: 0; }
+        
+        /* Cool Animated Button */
+        .btn {
+            background: transparent;
+            color: var(--neon);
+            padding: 12px 30px;
+            border: 2px solid var(--neon);
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 1em;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 0 5px var(--neon);
+        }
+
+        .btn:hover {
+            background: var(--neon);
+            color: black;
+            box-shadow: 0 0 25px var(--neon), 0 0 50px var(--neon);
+            transform: scale(1.05);
+        }
+
+        .btn:active { transform: scale(0.95); }
+
+        /* Card Pulse for In-Game Players */
+        @keyframes pulse {
+            0% { box-shadow: 0 0 5px #333; }
+            50% { box-shadow: 0 0 20px var(--neon); }
+            100% { box-shadow: 0 0 5px #333; }
+        }
+
+        .login-box { background: var(--card-bg); padding: 40px; border-radius: 15px; border: 1px solid #333; text-align: center; margin-top: 100px; }
+        input { background: #000; color: var(--neon); border: 1px solid #333; padding: 12px; width: 300px; margin: 20px 0; border-radius: 5px; outline: none; }
+        input:focus { border-color: var(--neon); }
+        .card { background: var(--card-bg); border: 1px solid #333; padding: 20px; width: 240px; border-radius: 12px; margin: 10px; transition: 0.3s; }
+        .in-game { border-color: var(--neon); animation: pulse 2s infinite; }
+        .nav-link { color: #888; text-decoration: none; font-size: 0.8em; margin-top: 15px; display: block; }
+        .nav-link:hover { color: var(--neon); }
     </style>
 </head>
 <body>
 
     <div id="auth-screen" class="login-box">
-        <h2>Enter Random Key</h2>
-        <p>Paste the KEY_ from Lootdest:</p>
-        <input type="text" id="key-input" placeholder="KEY_xxxxxxxxxxxx">
+        <h2 style="color: var(--neon); letter-spacing: 3px;">SYSTEM LOCKED</h2>
+        <input type="text" id="key-input" placeholder="PASTE KEY_ HERE">
         <br>
-        <button class="btn" onclick="saveKey()">Unlock</button>
+        <button class="btn" onclick="saveKey()">Verify Access</button>
+        <a class="nav-link" href="https://lootdest.org/s?8VGiorkT" target="_blank">Get New Daily Key</a>
     </div>
 
-    <div id="dashboard" style="display:none; width: 100%;">
-        <div class="nav">
-            <button onclick="resetKey()" style="background:#444; color:white; border:none; padding:5px; cursor:pointer;">New Key from Lootdest?</button>
+    <div id="dashboard" style="display:none; width: 100%; max-width: 1200px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; padding: 20px;">
+            <h1 style="color: var(--neon);">LIVE DATA</h1>
+            <button onclick="reset()" style="background:none; border:none; color:#666; cursor:pointer;">Logout</button>
         </div>
         <div id="grid" style="display:flex; flex-wrap:wrap; justify-content:center;"></div>
     </div>
 
     <script>
-        let k = localStorage.getItem("current_key");
+        let k = localStorage.getItem("tracker_key");
 
         function saveKey() {
             k = document.getElementById('key-input').value.trim();
-            localStorage.setItem("current_key", k);
+            localStorage.setItem("tracker_key", k);
             load();
         }
 
-        function resetKey() {
-            localStorage.removeItem("current_key");
-            location.reload();
-        }
+        function reset() { localStorage.removeItem("tracker_key"); location.reload(); }
 
         async function load() {
             if (!k) return;
-            const r = await fetch(`/api/data?key=${k}`);
-            if (r.ok) {
+            try {
+                const r = await fetch(`/api/data?key=${k}`);
+                if (!r.ok) throw new Error();
                 const data = await r.json();
                 document.getElementById('auth-screen').style.display = 'none';
                 document.getElementById('dashboard').style.display = 'block';
@@ -54,15 +91,17 @@
                 for (let name in data) {
                     const p = data[name];
                     grid.innerHTML += `
-                        <div class="card" style="border-color:${p.inGame?'#00ffcc':'#333'}">
-                            <h3 style="margin:0; color:#00ffcc">${name}</h3>
-                            <p>🍪: ${p.gingerbread}</p>
-                            <p>🔨: ${p.humbug}</p>
-                            <p>🛷: ${p.sleighball}</p>
-                            <p>⭐: ${p.starcatch}</p>
+                        <div class="card ${p.inGame ? 'in-game' : ''}">
+                            <h3 style="margin:0 0 10px 0; color:var(--neon)">${name}</h3>
+                            <p>💰 Bucks: ${p.bucks}</p>
+                            <p>🍪 Gingerbread: ${p.gingerbread}</p>
+                            <hr style="border:0; border-top:1px solid #333">
+                            <p>🔨 Humbug: ${p.humbug}</p>
+                            <p>🛷 Sleighball: ${p.sleighball}</p>
+                            <p>⭐ Starcatch: ${p.starcatch}</p>
                         </div>`;
                 }
-            } else {
+            } catch {
                 document.getElementById('auth-screen').style.display = 'block';
                 document.getElementById('dashboard').style.display = 'none';
             }
