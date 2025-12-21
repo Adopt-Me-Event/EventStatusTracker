@@ -1,43 +1,72 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Adopt Me Multi-Account Tracker</title>
+    <title>Secure Multi-Tracker</title>
     <style>
-        body { background: #121212; color: white; font-family: 'Segoe UI', sans-serif; display: flex; flex-wrap: wrap; gap: 20px; padding: 20px; }
-        .card { background: #1e1e1e; border: 2px solid #00ffcc; border-radius: 15px; padding: 20px; width: 250px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
-        h2 { margin: 0 0 10px 0; color: #00ffcc; border-bottom: 1px solid #333; padding-bottom: 5px; }
-        p { margin: 10px 0; font-size: 0.9em; display: flex; justify-content: space-between; }
-        .ready { color: #00ff00; font-weight: bold; }
-        .sync { color: #888; font-size: 0.7em; margin-top: 15px; text-align: right; }
+        body { background: #121212; color: white; font-family: sans-serif; padding: 20px; }
+        #login-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #121212; display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 100; }
+        input { padding: 10px; border-radius: 5px; border: none; margin-bottom: 10px; width: 200px; }
+        button { padding: 10px 20px; cursor: pointer; background: #00ffcc; border: none; font-weight: bold; border-radius: 5px; }
+        .card-container { display: flex; flex-wrap: wrap; gap: 15px; }
+        .card { background: #1e1e1e; border: 2px solid #00ffcc; border-radius: 12px; padding: 15px; width: 230px; }
     </style>
 </head>
 <body>
-    <div id="display" style="display: contents;"></div>
-    <script>
-        async function refresh() {
-            try {
-                const response = await fetch('/api/data');
-                const players = await response.json();
-                const display = document.getElementById('display');
-                display.innerHTML = ''; // Clear and redraw
 
-                for (let name in players) {
-                    const p = players[name];
-                    display.innerHTML += `
-                        <div class="card">
-                            <h2>${name}</h2>
-                            <p>💰 Bucks: <span>${p.bucks.toLocaleString()}</span></p>
-                            <p>🍪 Gingerbread: <span>${p.gingerbread.toLocaleString()}</span></p>
-                            <hr style="border:0; border-top:1px solid #333">
-                            <p>🔨 Humbug: <span class="${p.humbug=='READY'?'ready':''}">${p.humbug}</span></p>
-                            <p>🛷 Sleighball: <span class="${p.sleighball=='READY'?'ready':''}">${p.sleighball}</span></p>
-                            <p>⭐ Starcatch: <span class="${p.starcatch=='READY'?'ready':''}">${p.starcatch}</span></p>
-                            <div class="sync">Last Sync: ${p.lastSeen}</div>
-                        </div>`;
-                }
-            } catch(e) { console.log("Waiting for data..."); }
+    <div id="login-overlay">
+        <h2>Enter Daily Passcode</h2>
+        <input type="password" id="pass-input" placeholder="Passcode">
+        <button onclick="login()">Access Tracker</button>
+        <p id="err" style="color: red;"></p>
+    </div>
+
+    <div id="display" class="card-container" style="display: none;"></div>
+
+    <script>
+        let currentPass = sessionStorage.getItem("tracker_pass");
+
+        function login() {
+            const input = document.getElementById('pass-input').value;
+            sessionStorage.setItem("tracker_pass", input);
+            currentPass = input;
+            refresh();
         }
-        setInterval(refresh, 2000); // Check for updates every 2 seconds
+
+        async function refresh() {
+            if (!currentPass) return;
+
+            const r = await fetch(`/api/data?pass=${currentPass}`);
+            if (r.status === 401) {
+                document.getElementById('login-overlay').style.display = 'flex';
+                document.getElementById('display').style.display = 'none';
+                document.getElementById('err').innerText = "Incorrect or Expired Code";
+                return;
+            }
+
+            const data = await r.json();
+            document.getElementById('login-overlay').style.display = 'none';
+            document.getElementById('display').style.display = 'contents';
+            
+            const div = document.getElementById('display');
+            div.innerHTML = '';
+            for (let name in data) {
+                const p = data[name];
+                div.innerHTML += `
+                    <div class="card">
+                        <h2 style="color:${p.inGame?'#00ff00':'#00ffcc'}">${name}</h2>
+                        <p>Bucks: ${p.bucks}</p>
+                        <p>Gingerbread: ${p.gingerbread}</p>
+                        <hr>
+                        <p>🔨 Humbug: ${p.humbug}</p>
+                        <p>🛷 Sleighball: ${p.sleighball}</p>
+                        <p>⭐ Starcatch: ${p.starcatch}</p>
+                    </div>`;
+            }
+        }
+        
+        // Initial check and set interval
+        if (currentPass) refresh();
+        setInterval(refresh, 2000);
     </script>
 </body>
 </html>
