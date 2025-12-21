@@ -1,15 +1,13 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Adopt Me Multi-Tracker</title>
+    <title>Adopt Me Full Tracker</title>
     <style>
-        body { background: #121212; color: white; font-family: 'Segoe UI', sans-serif; display: flex; flex-wrap: wrap; gap: 15px; padding: 20px; }
-        .card { background: #1e1e1e; border: 2px solid #00ffcc; border-radius: 12px; padding: 15px; width: 220px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
-        h2 { margin: 0 0 10px 0; color: #00ffcc; font-size: 1.2em; border-bottom: 1px solid #333; padding-bottom: 5px; }
-        p { margin: 8px 0; font-size: 0.9em; display: flex; justify-content: space-between; }
-        .timer { color: #ffcc00; font-weight: bold; }
-        .ready { color: #00ff00; font-weight: bold; animation: blink 1s infinite; }
-        @keyframes blink { 50% { opacity: 0.5; } }
+        body { background: #121212; color: white; font-family: sans-serif; display: flex; flex-wrap: wrap; gap: 15px; padding: 20px; }
+        .card { background: #1e1e1e; border: 2px solid #00ffcc; border-radius: 12px; padding: 15px; width: 240px; }
+        h2 { margin: 0; color: #00ffcc; border-bottom: 1px solid #333; padding-bottom: 5px; }
+        .timer-row { display: flex; justify-content: space-between; margin: 10px 0; font-size: 0.9em; }
+        .ready { color: #00ff00; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -25,12 +23,12 @@
                 div.innerHTML += `
                     <div class="card">
                         <h2>${name}</h2>
-                        <p><span>Bucks:</span> <span>${p.bucks.toLocaleString()}</span></p>
-                        <p><span>Ginger:</span> <span>${p.gingerbread.toLocaleString()}</span></p>
-                        <hr style="border:0; border-top:1px solid #333">
-                        <p><span>Humbug:</span> <span class="${p.humbug=='READY'?'ready':'timer'}">${p.humbug}</span></p>
-                        <p><span>Sleighball:</span> <span class="${p.sleighball=='READY'?'ready':'timer'}">${p.sleighball}</span></p>
-                        <p><span>Starcatch:</span> <span class="${p.starcatch=='READY'?'ready':'timer'}">${p.starcatch}</span></p>
+                        <p>Bucks: ${p.bucks.toLocaleString()}</p>
+                        <p>Gingerbread: ${p.gingerbread.toLocaleString()}</p>
+                        <hr>
+                        <div class="timer-row"><span>Humbug:</span><span class="${p.humbug=='READY'?'ready':''}">${p.humbug}</span></div>
+                        <div class="timer-row"><span>Sleighball:</span><span class="${p.sleighball=='READY'?'ready':''}">${p.sleighball}</span></div>
+                        <div class="timer-row"><span>Starcatch:</span><span class="${p.starcatch=='READY'?'ready':''}">${p.starcatch}</span></div>
                     </div>`;
             }
         }
