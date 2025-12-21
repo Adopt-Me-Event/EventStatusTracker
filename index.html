@@ -1,40 +1,21 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>LIVE Roblox Stats</title>
-    <style>
-        body { background-color: #0f172a; color: white; font-family: 'Segoe UI', sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; margin: 0; }
-        .card { background: #1e293b; padding: 2rem; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); width: 350px; text-align: center; }
-        h1 { color: #38bdf8; margin-bottom: 1rem; }
-        .stat { margin: 15px 0; font-size: 1.2rem; display: flex; justify-content: space-between; border-bottom: 1px solid #334155; padding-bottom: 5px; }
-        .val { font-weight: bold; color: #fbbf24; }
-        .timer { color: #f87171; font-family: monospace; }
-    </style>
-</head>
-<body>
-    <div class="card">
-        <h1 id="pName">Connecting...</h1>
-        <div class="stat">Bucks: <span id="bucks" class="val">0</span></div>
-        <div class="stat">Gingerbread: <span id="gb" class="val">0</span></div>
-        <div class="stat">Sleighball: <span id="sleigh" class="timer">00:00</span></div>
-        <div class="stat">Humbug: <span id="humbug" class="timer">00:00</span></div>
-    </div>
+async function updateDashboard() {
+    const res = await fetch('/data');
+    const allPlayers = await res.json();
+    const container = document.getElementById('stats-container');
+    
+    container.innerHTML = ''; // Clear old data
 
-    <script>
-        async function refreshData() {
-            try {
-                const response = await fetch('/api/data');
-                const data = await response.json();
-                
-                document.getElementById('pName').innerText = data.playerName;
-                document.getElementById('bucks').innerText = data.bucks.toLocaleString();
-                document.getElementById('gb').innerText = data.gingerbread.toLocaleString();
-                document.getElementById('sleigh').innerText = data.sleighball;
-                document.getElementById('humbug').innerText = data.humbug;
-            } catch (e) { console.log("Waiting for server..."); }
-        }
-        setInterval(refreshData, 1000); // UI updates every 1 second
-    </script>
-</body>
-</html>
+    for (let name in allPlayers) {
+        const p = allPlayers[name];
+        container.innerHTML += `
+            <div class="card">
+                <h2>${name}</h2>
+                <p>Bucks: ${p.bucks.toLocaleString()}</p>
+                <p>Gingerbread: ${p.gingerbread.toLocaleString()}</p>
+                <p>Sleighball: ${p.sleighball}</p>
+                <p>Last Sync: ${p.lastUpdate}</p>
+            </div>
+        `;
+    }
+}
+setInterval(updateDashboard, 1000);
