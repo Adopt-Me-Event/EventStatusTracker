@@ -1,72 +1,77 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Secure Multi-Tracker</title>
+    <title>Multi-Tracker (Key Required)</title>
     <style>
-        body { background: #121212; color: white; font-family: sans-serif; padding: 20px; }
-        #login-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #121212; display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 100; }
-        input { padding: 10px; border-radius: 5px; border: none; margin-bottom: 10px; width: 200px; }
-        button { padding: 10px 20px; cursor: pointer; background: #00ffcc; border: none; font-weight: bold; border-radius: 5px; }
-        .card-container { display: flex; flex-wrap: wrap; gap: 15px; }
-        .card { background: #1e1e1e; border: 2px solid #00ffcc; border-radius: 12px; padding: 15px; width: 230px; }
+        body { background: #0a0a0a; color: #eee; font-family: sans-serif; display: flex; flex-direction: column; align-items: center; padding: 50px; }
+        .login-box { background: #1a1a1a; padding: 30px; border-radius: 15px; border: 1px solid #333; text-align: center; }
+        input { background: #000; color: #00ffcc; border: 1px solid #00ffcc; padding: 12px; border-radius: 5px; width: 280px; margin: 15px 0; }
+        .btn { background: #00ffcc; color: #000; padding: 10px 25px; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; }
+        .link-text { color: #888; font-size: 0.8em; margin-top: 20px; }
+        a { color: #00ffcc; text-decoration: none; }
+        .card { background: #1e1e1e; border: 2px solid #00ffcc; padding: 15px; width: 220px; border-radius: 10px; margin: 10px; }
     </style>
 </head>
 <body>
 
-    <div id="login-overlay">
-        <h2>Enter Daily Passcode</h2>
-        <input type="password" id="pass-input" placeholder="Passcode">
-        <button onclick="login()">Access Tracker</button>
-        <p id="err" style="color: red;"></p>
+    <div id="login-screen" class="login-box">
+        <h2>Authentication</h2>
+        <p>Enter your daily access key below</p>
+        <input type="text" id="key-field" placeholder="KEY_xxxxxxxxxxxx">
+        <br>
+        <button class="btn" onclick="submitKey()">Unlock Tracker</button>
+        
+        <div class="link-text">
+            Don't have a key? <br>
+            <a href="https://lootdest.org/s?8VGiorkT" target="_blank">Click here to get today's KEY</a>
+        </div>
+        <p id="msg" style="color:red"></p>
     </div>
 
-    <div id="display" class="card-container" style="display: none;"></div>
+    <div id="main-display" style="display:none; flex-wrap: wrap; justify-content: center;"></div>
 
     <script>
-        let currentPass = sessionStorage.getItem("tracker_pass");
+        let savedKey = localStorage.getItem("access_key");
 
-        function login() {
-            const input = document.getElementById('pass-input').value;
-            sessionStorage.setItem("tracker_pass", input);
-            currentPass = input;
-            refresh();
+        function submitKey() {
+            const val = document.getElementById('key-field').value;
+            localStorage.setItem("access_key", val);
+            savedKey = val;
+            checkAndLoad();
         }
 
-        async function refresh() {
-            if (!currentPass) return;
-
-            const r = await fetch(`/api/data?pass=${currentPass}`);
-            if (r.status === 401) {
-                document.getElementById('login-overlay').style.display = 'flex';
-                document.getElementById('display').style.display = 'none';
-                document.getElementById('err').innerText = "Incorrect or Expired Code";
-                return;
-            }
-
-            const data = await r.json();
-            document.getElementById('login-overlay').style.display = 'none';
-            document.getElementById('display').style.display = 'contents';
+        async function checkAndLoad() {
+            if(!savedKey) return;
             
-            const div = document.getElementById('display');
-            div.innerHTML = '';
-            for (let name in data) {
+            const r = await fetch(`/api/data?key=${savedKey}`);
+            if(r.ok) {
+                const data = await r.json();
+                document.getElementById('login-screen').style.display = 'none';
+                document.getElementById('main-display').style.display = 'flex';
+                renderCards(data);
+            } else {
+                document.getElementById('msg').innerText = "Key Expired or Invalid!";
+            }
+        }
+
+        function renderCards(data) {
+            const container = document.getElementById('main-display');
+            container.innerHTML = '';
+            for(let name in data) {
                 const p = data[name];
-                div.innerHTML += `
+                container.innerHTML += `
                     <div class="card">
-                        <h2 style="color:${p.inGame?'#00ff00':'#00ffcc'}">${name}</h2>
-                        <p>Bucks: ${p.bucks}</p>
-                        <p>Gingerbread: ${p.gingerbread}</p>
-                        <hr>
+                        <h3 style="margin:0; color:#00ffcc">${name}</h3>
+                        <p>🍪 Gingerbread: ${p.gingerbread}</p>
                         <p>🔨 Humbug: ${p.humbug}</p>
-                        <p>🛷 Sleighball: ${p.sleighball}</p>
                         <p>⭐ Starcatch: ${p.starcatch}</p>
+                        <small>Status: ${p.inGame ? '🟢 ACTIVE' : '⚪ IDLE'}</small>
                     </div>`;
             }
         }
-        
-        // Initial check and set interval
-        if (currentPass) refresh();
-        setInterval(refresh, 2000);
+
+        setInterval(checkAndLoad, 3000);
+        if(savedKey) checkAndLoad();
     </script>
 </body>
 </html>
