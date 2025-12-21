@@ -3,45 +3,44 @@
 <head>
     <title>EventSploit DashBoard</title>
     <style>
-        :root { --neon-green: #00ff66; --bg: #0a0a0a; --card-bg: #111; --rainbow: conic-gradient(#ff0, #0f0, #0ff, #00f, #f0f, #f00, #ff0); }
-        body { background: var(--bg); color: white; font-family: 'Segoe UI', sans-serif; margin: 0; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
+        :root { --neon-green: #00ff66; --bg: #0a0a0a; --card-bg: #111; }
+        body { background: var(--bg); color: white; font-family: 'Segoe UI', sans-serif; margin: 0; display: flex; flex-direction: column; align-items: center; }
         .tab-bar { display: flex; gap: 5px; margin: 20px 0; background: #1a1a1a; padding: 5px; border-radius: 10px; width: 90%; max-width: 800px; }
-        .tab { flex: 1; padding: 12px; cursor: pointer; border-radius: 8px; color: #888; transition: 0.2s; text-align: center; font-weight: bold; }
+        .tab { flex: 1; padding: 12px; cursor: pointer; border-radius: 8px; color: #888; text-align: center; font-weight: bold; }
         .tab.active { background: var(--neon-green); color: black; }
         .page { display: none; width: 95%; max-width: 1200px; }
         .page.active { display: block; }
         .card { background: var(--card-bg); border: 2px solid #333; padding: 15px; border-radius: 12px; width: 260px; margin: 10px; cursor: pointer; transition: 0.3s; }
-        .card:hover { border-color: var(--neon-green); transform: scale(1.03); }
+        .card:hover { border-color: var(--neon-green); }
         .stat-row { display: flex; justify-content: space-between; margin: 5px 0; font-size: 0.9em; }
-        .ready { color: var(--neon-green); font-weight: bold; text-shadow: 0 0 5px var(--neon-green); }
-        .location-tag { color: #aaa; font-size: 0.85em; font-style: italic; display: block; margin-top: 5px; border-top: 1px solid #222; padding-top: 5px; }
-        .inv-column { background: #161616; padding: 15px; border-radius: 10px; width: 320px; border: 1px solid #333; height: 500px; overflow-y: auto; }
-        .inv-item { background: #222; padding: 8px; margin: 5px 0; border-radius: 4px; border-left: 3px solid var(--neon-green); font-size: 0.85em; text-align: left; text-transform: capitalize; }
-        .green-btn { background: var(--neon-green); color: black; padding: 12px 25px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; }
+        .ready { color: var(--neon-green); font-weight: bold; text-shadow: 0 0 8px var(--neon-green); }
+        .location-tag { color: #aaa; font-size: 0.85em; font-style: italic; margin-top: 5px; border-top: 1px solid #222; padding-top: 5px; }
+        .inv-column { background: #161616; padding: 15px; border-radius: 10px; width: 30%; min-width: 300px; border: 1px solid #333; height: 500px; overflow-y: auto; }
+        .inv-item { background: #222; padding: 8px; margin: 5px 0; border-radius: 4px; border-left: 3px solid var(--neon-green); font-size: 0.85em; }
+        .green-btn { background: var(--neon-green); color: black; padding: 10px 20px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; }
     </style>
 </head>
 <body>
-    <div id="main-ui" style="width:100%;">
-        <div style="padding: 15px 40px; display: flex; justify-content: space-between; align-items: center;">
-            <h2 style="color:var(--neon-green); margin:0;">EVENTSPLOIT DASHBOARD</h2>
-            <button class="green-btn" onclick="logout()">Logout</button>
-        </div>
+    <div style="padding: 20px; width: 100%; display: flex; justify-content: space-between; align-items: center;">
+        <h2 style="color:var(--neon-green); margin:0;">EVENTSPLOIT DASHBOARD</h2>
+        <button class="green-btn" onclick="logout()">LOGOUT</button>
+    </div>
 
-        <div class="tab-bar" style="margin: 0 auto;">
-            <div class="tab active" id="btn-alts" onclick="switchTab('alts')">ALT TRACKER</div>
-            <div class="tab" id="btn-inv" onclick="switchTab('inv')">INVENTORY</div>
-            <div class="tab" id="btn-console" onclick="switchTab('console')">CONSOLE</div>
-        </div>
+    <div class="tab-bar">
+        <div class="tab active" id="t-alts" onclick="switchTab('alts')">ALT TRACKER</div>
+        <div class="tab" id="t-inv" onclick="switchTab('inv')">INVENTORY</div>
+    </div>
 
-        <div id="page-alts" class="page active"><div id="grid" style="display:flex; flex-wrap:wrap; justify-content:center;"></div></div>
+    <div id="page-alts" class="page active">
+        <div id="grid" style="display:flex; flex-wrap:wrap; justify-content:center;"></div>
+    </div>
 
-        <div id="page-inv" class="page">
-            <h3 id="inv-title" style="text-align:center; color:var(--neon-green);">Click an Alt Card to view Inventory</h3>
-            <div style="display:flex; justify-content:center; gap:20px; flex-wrap:wrap;">
-                <div class="inv-column"><h4>🐶 PETS</h4><div id="inv-pets"></div></div>
-                <div class="inv-column"><h4>🍔 FOOD</h4><div id="inv-food"></div></div>
-                <div class="inv-column)<h4>🎁 GIFTS</h4><div id="inv-gifts"></div></div>
-            </div>
+    <div id="page-inv" class="page">
+        <h3 id="inv-title" style="text-align:center; color:var(--neon-green);">SELECT AN ALT CARD TO VIEW ITEMS</h3>
+        <div style="display:flex; justify-content:center; gap:20px;">
+            <div class="inv-column"><h4>🐶 PETS</h4><div id="inv-pets"></div></div>
+            <div class="inv-column"><h4>🍔 FOOD</h4><div id="inv-food"></div></div>
+            <div class="inv-column"><h4>🎁 GIFTS</h4><div id="inv-gifts"></div></div>
         </div>
     </div>
 
@@ -53,7 +52,7 @@
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
             document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
             document.getElementById('page-' + t).classList.add('active');
-            document.getElementById('btn-' + t).classList.add('active');
+            document.getElementById('t-' + t).classList.add('active');
         }
 
         function selectPlayer(name) {
@@ -64,26 +63,22 @@
 
         function updateInventoryUI() {
             if(!selectedUser || !allData[selectedUser]) return;
-            document.getElementById('inv-title').innerText = "Inventory: " + selectedUser;
-            
+            document.getElementById('inv-title').innerText = "INVENTORY: " + selectedUser;
             const inv = allData[selectedUser].inventory || {};
             
             const fill = (id, list) => {
                 const el = document.getElementById(id);
                 el.innerHTML = "";
                 if(!list || Object.keys(list).length === 0) {
-                    el.innerHTML = '<div style="color:#555; padding:10px;">No items found</div>';
+                    el.innerHTML = '<div style="color:#444;">Empty</div>';
                     return;
                 }
                 Object.values(list).forEach(item => {
-                    const itemName = (item.id || "Unknown").replace(/_/g, " ");
-                    el.innerHTML += `<div class="inv-item">${itemName}</div>`;
+                    const name = (item.id || "Item").replace(/_/g, " ");
+                    el.innerHTML += `<div class="inv-item">${name}</div>`;
                 });
             };
-
-            fill('inv-pets', inv.pets); 
-            fill('inv-food', inv.food); 
-            fill('inv-gifts', inv.gifts);
+            fill('inv-pets', inv.pets); fill('inv-food', inv.food); fill('inv-gifts', inv.gifts);
         }
 
         async function load() {
@@ -97,14 +92,14 @@
                     const p = allData[name];
                     grid.innerHTML += `
                         <div class="card" onclick="selectPlayer('${name}')">
-                            <h3 style="color:var(--neon-green); margin-bottom: 5px;">${name}</h3>
+                            <h3 style="color:var(--neon-green); margin:0;">${name}</h3>
                             <div class="location-tag">📍 ${p.location || 'Main Map'}</div>
                             <hr style="border:0; border-top:1px solid #333; margin:10px 0;">
                             <div class="stat-row"><span>💰 Bucks:</span> <b>${(p.bucks || 0).toLocaleString()}</b></div>
                             <div class="stat-row"><span>🍪 Ginger:</span> <b>${(p.gingerbread || 0).toLocaleString()}</b></div>
-                            <div class="stat-row"><span>🔨 Humbug:</span> <span class="${p.humbug=='READY'?'ready':''}">${p.humbug || 'N/A'}</span></div>
-                            <div class="stat-row"><span>🛷 Sleigh:</span> <span class="${p.sleighball=='READY'?'ready':''}">${p.sleighball || 'N/A'}</span></div>
-                            <div class="stat-row"><span>⭐ Star:</span> <span class="${p.starcatch=='READY'?'ready':''}">${p.starcatch || 'N/A'}</span></div>
+                            <div class="stat-row"><span>🔨 Humbug:</span> <span class="${p.humbug=='READY'?'ready':''}">${p.humbug}</span></div>
+                            <div class="stat-row"><span>🛷 Sleigh:</span> <span class="${p.sleighball=='READY'?'ready':''}">${p.sleighball}</span></div>
+                            <div class="stat-row"><span>⭐ Star:</span> <span class="${p.starcatch=='READY'?'ready':''}">${p.starcatch}</span></div>
                         </div>`;
                 }
                 if(selectedUser) updateInventoryUI();
