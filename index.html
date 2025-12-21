@@ -6,26 +6,29 @@
         :root { --neon: #00ffcc; --bg: #0a0a0a; --card-bg: #111; --rainbow: conic-gradient(#ff0, #0f0, #0ff, #00f, #f0f, #f00, #ff0); }
         body { background: var(--bg); color: white; font-family: 'Segoe UI', sans-serif; margin: 0; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
 
-        .rainbow-frame { position: relative; padding: 4px; border-radius: 20px; overflow: hidden; margin-top: 40px; width: 400px; }
+        /* Rainbow Frame */
+        .rainbow-frame { position: relative; padding: 4px; border-radius: 20px; overflow: hidden; margin-top: 50px; width: 400px; }
         .rainbow-frame::before { content: ''; position: absolute; width: 200%; height: 200%; background: var(--rainbow); animation: rotate 4s linear infinite; top: -50%; left: -50%; }
         @keyframes rotate { 100% { transform: rotate(360deg); } }
         .inner-box { position: relative; background: #161616; padding: 30px; border-radius: 17px; z-index: 2; text-align: center; }
 
-        .tab-bar { display: flex; gap: 5px; margin: 20px 0; background: #1a1a1a; padding: 5px; border-radius: 10px; width: 95%; max-width: 800px; }
+        /* Navigation Tabs */
+        .tab-bar { display: flex; gap: 5px; margin: 20px 0; background: #1a1a1a; padding: 5px; border-radius: 10px; width: 90%; max-width: 800px; }
         .tab { flex: 1; padding: 12px; cursor: pointer; border-radius: 8px; color: #888; transition: 0.2s; text-align: center; font-weight: bold; }
         .tab.active { background: var(--neon); color: black; }
 
-        .page { display: none; width: 95%; max-width: 1200px; margin-top: 10px; }
+        /* Pages */
+        .page { display: none; width: 95%; max-width: 1200px; }
         .page.active { display: block; }
 
-        .card { background: var(--card-bg); border: 2px solid #333; padding: 15px; border-radius: 12px; width: 200px; margin: 10px; cursor: pointer; transition: 0.3s; }
-        .card:hover { border-color: var(--neon); transform: translateY(-3px); }
+        /* Layout Elements */
+        .card { background: var(--card-bg); border: 2px solid #333; padding: 15px; border-radius: 12px; width: 220px; margin: 10px; cursor: pointer; transition: 0.3s; }
+        .card:hover { border-color: var(--neon); transform: scale(1.03); }
+        .inv-column { background: #161616; padding: 15px; border-radius: 10px; width: 320px; border: 1px solid #333; min-height: 400px; max-height: 600px; overflow-y: auto; }
+        .inv-item { background: #222; padding: 10px; margin: 5px 0; border-radius: 5px; border-left: 3px solid var(--neon); font-size: 0.85em; text-align: left; text-transform: capitalize; }
         
-        .inv-column { background: #161616; padding: 15px; border-radius: 10px; width: 300px; border: 1px solid #333; height: 500px; overflow-y: auto; }
-        .inv-item { background: #222; padding: 8px; margin: 5px 0; border-radius: 4px; border-left: 3px solid var(--neon); font-size: 0.8em; text-align: left; }
-
-        textarea { background: #000; color: #0f0; border: 1px solid #333; width: 100%; height: 250px; border-radius: 10px; padding: 15px; font-family: monospace; }
-        .cool-btn { background: transparent; color: white; padding: 10px 20px; border: 2px solid white; border-radius: 8px; cursor: pointer; font-weight: bold; }
+        textarea { background: #000; color: #0f0; border: 1px solid #333; width: 100%; height: 200px; border-radius: 10px; padding: 15px; font-family: monospace; resize: none; }
+        .cool-btn { background: transparent; color: white; padding: 10px 20px; border: 2px solid white; border-radius: 8px; cursor: pointer; font-weight: bold; transition: 0.3s; }
         .cool-btn:hover { background: white; color: black; box-shadow: 0 0 15px white; }
     </style>
 </head>
@@ -33,19 +36,19 @@
 
     <div id="auth-screen" class="rainbow-frame">
         <div class="inner-box">
-            <h2>ACCESS KEY REQUIRED</h2>
+            <h2>SYSTEM ENCRYPTED</h2>
             <input type="text" id="key-input" placeholder="PASTE KEY_ HERE" style="width:80%; padding:10px; background:#000; color:white; border:1px solid #333; margin-bottom:15px; text-align:center;">
-            <button class="cool-btn" style="width:100%" onclick="saveKey()">UNLOCK DASHBOARD</button>
+            <button class="cool-btn" style="width:100%" onclick="saveKey()">UNLOCK HUB</button>
         </div>
     </div>
 
     <div id="main-ui" style="display:none; width:100%;">
-        <div style="padding: 15px 40px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #222;">
+        <div style="padding: 15px 40px; display: flex; justify-content: space-between; align-items: center;">
             <h2 style="color:var(--neon); margin:0;">ADOPT ME HUB</h2>
             <button class="cool-btn" style="font-size: 0.7em;" onclick="logout()">LOGOUT</button>
         </div>
 
-        <div class="tab-bar" style="margin: 20px auto;">
+        <div class="tab-bar" style="margin: 0 auto;">
             <div class="tab active" id="tab-alts" onclick="switchTab('alts')">ALT TRACKER</div>
             <div class="tab" id="tab-inv" onclick="switchTab('inv')">INVENTORY</div>
             <div class="tab" id="tab-console" onclick="switchTab('console')">CONSOLE</div>
@@ -56,8 +59,8 @@
         </div>
 
         <div id="page-inv" class="page">
-            <h3 id="inv-title" style="text-align:center;">Select an account in Overview</h3>
-            <div style="display:flex; justify-content:center; gap:15px; flex-wrap:wrap;">
+            <h3 id="inv-title" style="text-align:center; color:var(--neon);">Select an account from Overview</h3>
+            <div style="display:flex; justify-content:center; gap:20px; flex-wrap:wrap;">
                 <div class="inv-column"><h4>🐶 PETS</h4><div id="inv-pets"></div></div>
                 <div class="inv-column"><h4>🍔 FOOD</h4><div id="inv-food"></div></div>
                 <div class="inv-column"><h4>🎁 GIFTS</h4><div id="inv-gifts"></div></div>
@@ -65,12 +68,12 @@
         </div>
 
         <div id="page-console" class="page">
-            <div style="max-width: 800px; margin: 0 auto; background: #161616; padding: 30px; border-radius: 15px; border: 1px solid #333;">
-                <h3 style="margin-top:0; color:var(--neon)">REMOTE CONSOLE</h3>
-                <label>Target Account:</label>
+            <div style="max-width: 700px; margin: 0 auto; background: #161616; padding: 25px; border-radius: 15px; border: 1px solid #333;">
+                <h3 style="margin-top:0; color:var(--neon)">REMOTE EXECUTOR</h3>
+                <label>Target:</label>
                 <select id="console-target" style="width:100%; padding:12px; background:#000; color:white; border:1px solid #333; margin-bottom:15px; border-radius:8px;"></select>
                 <textarea id="lua-code" placeholder="-- Enter Lua Code..."></textarea>
-                <button class="cool-btn" style="width:100%; margin-top:20px; border-color:var(--neon); color:var(--neon);" onclick="sendCommand()">EXECUTE COMMAND</button>
+                <button class="cool-btn" style="width:100%; margin-top:20px; border-color:var(--neon); color:var(--neon);" onclick="sendCommand()">RUN COMMAND</button>
             </div>
         </div>
     </div>
@@ -116,9 +119,13 @@
             const fill = (id, list) => {
                 const el = document.getElementById(id);
                 el.innerHTML = "";
-                if(!list) return;
+                if(!list || Object.keys(list).length === 0) {
+                    el.innerHTML = '<div style="color:#444; padding:10px;">Empty</div>';
+                    return;
+                }
                 Object.values(list).forEach(item => {
-                    el.innerHTML += `<div class="inv-item">${item.id || 'Unknown Item'}</div>`;
+                    const name = (item.id || "Unknown").replace(/_/g, " ");
+                    el.innerHTML += `<div class="inv-item">${name}</div>`;
                 });
             };
             fill('inv-pets', inv.pets);
@@ -129,12 +136,12 @@
         async function sendCommand() {
             const target = document.getElementById('console-target').value;
             const cmd = document.getElementById('lua-code').value;
-            const r = await fetch('/send-command', {
+            await fetch('/send-command', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({ target, cmd, key: k })
             });
-            if(r.ok) alert("Sent to Command Queue!");
+            alert("Sent!");
         }
 
         async function load() {
