@@ -4,29 +4,20 @@ const app = express();
 app.use(express.json());
 
 let players = {}; 
-let currentMasterKey = "KEY_START"; // Initial key
+let currentMasterKey = "KEY_START"; // Server resets to this on restart
 
 app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'index.html')));
 
-// API to check the key and get data
 app.get('/api/data', (req, res) => {
     const userKey = req.query.key;
-
-    // If the key starts with KEY_ and the server is at START, or it matches the current one
     if (userKey && userKey.startsWith("KEY_")) {
-        if (currentMasterKey === "KEY_START") {
-            currentMasterKey = userKey; // Sets the key to whatever Lootdest gave you
-        }
-        
-        if (userKey === currentMasterKey) {
-            return res.json(players);
-        }
+        // If it's a new session, the first KEY_ entered becomes the master
+        if (currentMasterKey === "KEY_START") currentMasterKey = userKey;
+        if (userKey === currentMasterKey) return res.json(players);
     }
-    
     res.status(401).json({ error: "Invalid Key" });
 });
 
-// Roblox update route
 app.post('/update', (req, res) => {
     const d = req.body;
     players[d.playerName] = {
@@ -38,4 +29,4 @@ app.post('/update', (req, res) => {
 });
 
 const PORT = process.env.PORT || 10000;
-app.listen(PORT, () => console.log("Server Live. Waiting for first KEY_ input."));
+app.listen(PORT, () => console.log("Server Live and Secure"));
