@@ -1,38 +1,37 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Adopt Me Full Tracker</title>
+    <title>Multi-Account Event Tracker</title>
     <style>
         body { background: #121212; color: white; font-family: sans-serif; display: flex; flex-wrap: wrap; gap: 15px; padding: 20px; }
-        .card { background: #1e1e1e; border: 2px solid #00ffcc; border-radius: 12px; padding: 15px; width: 240px; }
-        h2 { margin: 0; color: #00ffcc; border-bottom: 1px solid #333; padding-bottom: 5px; }
-        .timer-row { display: flex; justify-content: space-between; margin: 10px 0; font-size: 0.9em; }
-        .ready { color: #00ff00; font-weight: bold; }
+        .card { background: #1e1e1e; border: 2px solid #00ffcc; border-radius: 12px; padding: 15px; width: 230px; }
+        h2 { margin: 0; color: #00ffcc; font-size: 1.2em; border-bottom: 1px solid #333; padding-bottom: 5px; }
+        .timer-row { display: flex; justify-content: space-between; margin-top: 8px; font-size: 0.9em; }
     </style>
 </head>
 <body>
-    <div id="display" style="display: contents;"></div>
+    <div id="container" style="display: contents;"></div>
     <script>
-        async function refresh() {
-            const r = await fetch('/api/data');
-            const data = await r.json();
-            const div = document.getElementById('display');
-            div.innerHTML = '';
-            for (let name in data) {
+        async function update() {
+            const res = await fetch('/api/data');
+            const data = await res.json();
+            const container = document.getElementById('container');
+            container.innerHTML = '';
+            for(let name in data) {
                 const p = data[name];
-                div.innerHTML += `
+                container.innerHTML += `
                     <div class="card">
                         <h2>${name}</h2>
                         <p>Bucks: ${p.bucks.toLocaleString()}</p>
                         <p>Gingerbread: ${p.gingerbread.toLocaleString()}</p>
                         <hr>
-                        <div class="timer-row"><span>Humbug:</span><span class="${p.humbug=='READY'?'ready':''}">${p.humbug}</span></div>
-                        <div class="timer-row"><span>Sleighball:</span><span class="${p.sleighball=='READY'?'ready':''}">${p.sleighball}</span></div>
-                        <div class="timer-row"><span>Starcatch:</span><span class="${p.starcatch=='READY'?'ready':''}">${p.starcatch}</span></div>
+                        <div class="timer-row"><span>🔨 Humbug:</span> <strong>${p.humbug}</strong></div>
+                        <div class="timer-row"><span>🛷 Sleighball:</span> <strong>${p.sleighball}</strong></div>
+                        <div class="timer-row"><span>⭐ Starcatch:</span> <strong>${p.starcatch}</strong></div>
                     </div>`;
             }
         }
-        setInterval(refresh, 1500);
+        setInterval(update, 2000);
     </script>
 </body>
 </html>
