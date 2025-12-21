@@ -1,37 +1,43 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Multi-Account Event Tracker</title>
+    <title>Adopt Me Multi-Account Tracker</title>
     <style>
-        body { background: #121212; color: white; font-family: sans-serif; display: flex; flex-wrap: wrap; gap: 15px; padding: 20px; }
-        .card { background: #1e1e1e; border: 2px solid #00ffcc; border-radius: 12px; padding: 15px; width: 230px; }
-        h2 { margin: 0; color: #00ffcc; font-size: 1.2em; border-bottom: 1px solid #333; padding-bottom: 5px; }
-        .timer-row { display: flex; justify-content: space-between; margin-top: 8px; font-size: 0.9em; }
+        body { background: #121212; color: white; font-family: 'Segoe UI', sans-serif; display: flex; flex-wrap: wrap; gap: 20px; padding: 20px; }
+        .card { background: #1e1e1e; border: 2px solid #00ffcc; border-radius: 15px; padding: 20px; width: 250px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
+        h2 { margin: 0 0 10px 0; color: #00ffcc; border-bottom: 1px solid #333; padding-bottom: 5px; }
+        p { margin: 10px 0; font-size: 0.9em; display: flex; justify-content: space-between; }
+        .ready { color: #00ff00; font-weight: bold; }
+        .sync { color: #888; font-size: 0.7em; margin-top: 15px; text-align: right; }
     </style>
 </head>
 <body>
-    <div id="container" style="display: contents;"></div>
+    <div id="display" style="display: contents;"></div>
     <script>
-        async function update() {
-            const res = await fetch('/api/data');
-            const data = await res.json();
-            const container = document.getElementById('container');
-            container.innerHTML = '';
-            for(let name in data) {
-                const p = data[name];
-                container.innerHTML += `
-                    <div class="card">
-                        <h2>${name}</h2>
-                        <p>Bucks: ${p.bucks.toLocaleString()}</p>
-                        <p>Gingerbread: ${p.gingerbread.toLocaleString()}</p>
-                        <hr>
-                        <div class="timer-row"><span>🔨 Humbug:</span> <strong>${p.humbug}</strong></div>
-                        <div class="timer-row"><span>🛷 Sleighball:</span> <strong>${p.sleighball}</strong></div>
-                        <div class="timer-row"><span>⭐ Starcatch:</span> <strong>${p.starcatch}</strong></div>
-                    </div>`;
-            }
+        async function refresh() {
+            try {
+                const response = await fetch('/api/data');
+                const players = await response.json();
+                const display = document.getElementById('display');
+                display.innerHTML = ''; // Clear and redraw
+
+                for (let name in players) {
+                    const p = players[name];
+                    display.innerHTML += `
+                        <div class="card">
+                            <h2>${name}</h2>
+                            <p>💰 Bucks: <span>${p.bucks.toLocaleString()}</span></p>
+                            <p>🍪 Gingerbread: <span>${p.gingerbread.toLocaleString()}</span></p>
+                            <hr style="border:0; border-top:1px solid #333">
+                            <p>🔨 Humbug: <span class="${p.humbug=='READY'?'ready':''}">${p.humbug}</span></p>
+                            <p>🛷 Sleighball: <span class="${p.sleighball=='READY'?'ready':''}">${p.sleighball}</span></p>
+                            <p>⭐ Starcatch: <span class="${p.starcatch=='READY'?'ready':''}">${p.starcatch}</span></p>
+                            <div class="sync">Last Sync: ${p.lastSeen}</div>
+                        </div>`;
+                }
+            } catch(e) { console.log("Waiting for data..."); }
         }
-        setInterval(update, 2000);
+        setInterval(refresh, 2000); // Check for updates every 2 seconds
     </script>
 </body>
 </html>
