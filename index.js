@@ -4,40 +4,31 @@ const app = express();
 app.use(express.json());
 
 let players = {}; 
-
-// --- DUAL-KEY LOGIC (Fixes Timezone Mismatch) ---
-const getValidKeys = () => {
-    const now = new Date();
-    const yesterday = new Date();
-    yesterday.setDate(now.getDate() - 1);
-
-    const formatDate = (date) => date.toISOString().slice(0, 10).replace(/-/g, "");
-    
-    // Generates keys for Today and Yesterday in UTC
-    return [
-        "KEY_" + formatDate(now) + "secure",
-        "KEY_" + formatDate(yesterday) + "secure"
-    ];
-};
+let currentMasterKey = "KEY_START"; // Initial key
 
 app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'index.html')));
 
-// API protection: Key must match one of the two valid UTC keys
+// API to check the key and get data
 app.get('/api/data', (req, res) => {
     const userKey = req.query.key;
-    const validKeys = getValidKeys();
 
-    if (validKeys.includes(userKey)) {
-        res.json(players);
-    } else {
-        console.log(`[AUTH] Rejected: ${userKey}. Server expecting one of:`, validKeys);
-        res.status(401).json({ error: "Invalid Key." });
+    // If the key starts with KEY_ and the server is at START, or it matches the current one
+    if (userKey && userKey.startsWith("KEY_")) {
+        if (currentMasterKey === "KEY_START") {
+            currentMasterKey = userKey; // Sets the key to whatever Lootdest gave you
+        }
+        
+        if (userKey === currentMasterKey) {
+            return res.json(players);
+        }
     }
+    
+    res.status(401).json({ error: "Invalid Key" });
 });
 
+// Roblox update route
 app.post('/update', (req, res) => {
     const d = req.body;
-    if (!d.playerName) return res.sendStatus(400);
     players[d.playerName] = {
         bucks: d.bucks, gingerbread: d.gingerbread,
         humbug: d.humbug, sleighball: d.sleighball, starcatch: d.starcatch,
@@ -47,9 +38,4 @@ app.post('/update', (req, res) => {
 });
 
 const PORT = process.env.PORT || 10000;
-app.listen(PORT, () => {
-    console.log("-----------------------------------------");
-    console.log("SERVER LIVE. Acceptable Keys today:");
-    getValidKeys().forEach(k => console.log(" > " + k));
-    console.log("-----------------------------------------");
-});
+app.listen(PORT, () => console.log("Server Live. Waiting for first KEY_ input."));
