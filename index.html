@@ -9,10 +9,10 @@
             --neon: #00ff66; 
             --bg: #0a0a0a; 
             --card: #111; 
-            --border: #333;
+            --border: #222;
         }
 
-        @keyframes rainbow-flow {
+        @keyframes rainbow-border {
             0% { background-position: 0% 50%; }
             50% { background-position: 100% 50%; }
             100% { background-position: 0% 50%; }
@@ -27,10 +27,9 @@
             flex-direction: column; 
             align-items: center; 
             min-height: 100vh;
-            overflow-x: hidden;
         }
 
-        /* --- KEY SYSTEM UI --- */
+        /* --- CLEAN LOGIN SCREEN --- */
         #login-screen {
             display: flex;
             flex-direction: column;
@@ -40,25 +39,13 @@
             width: 100%;
         }
 
-        .rainbow-box {
-            position: relative;
+        .login-box {
             background: var(--card);
             padding: 40px;
-            border-radius: 15px;
+            border-radius: 12px;
             text-align: center;
-            z-index: 1;
-        }
-
-        .rainbow-box::before {
-            content: '';
-            position: absolute;
-            top: -2px; left: -2px; right: -2px; bottom: -2px;
-            background: linear-gradient(45deg, #ff0000, #ff7300, #fffb00, #48ff00, #00ffd5, #002bff, #7a00ff, #ff00c8, #ff0000);
-            background-size: 400%;
-            z-index: -1;
-            filter: blur(5px);
-            animation: rainbow-flow 20s linear infinite;
-            border-radius: 16px;
+            border: 1px solid var(--border);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
         }
 
         /* --- BUTTONS --- */
@@ -67,90 +54,90 @@
             color: black;
             padding: 12px 25px;
             border: none;
-            border-radius: 8px;
+            border-radius: 6px;
             font-weight: bold;
             cursor: pointer;
-            transition: transform 0.2s, box-shadow 0.2s;
+            transition: 0.2s;
             margin: 5px;
         }
 
         .btn:hover {
-            transform: scale(1.05);
-            box-shadow: 0 0 15px var(--neon);
+            transform: translateY(-2px);
+            box-shadow: 0 0 15px rgba(0, 255, 102, 0.4);
         }
 
         .btn-secondary {
             background: transparent;
-            border: 1px solid var(--neon);
+            border: 1px solid #444;
+            color: #888;
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--neon);
             color: var(--neon);
         }
 
-        /* --- DASHBOARD UI --- */
+        /* --- DASHBOARD --- */
         #dashboard { display: none; width: 100%; }
         
         .header {
             padding: 20px;
-            width: 95%;
+            width: 90%;
             display: flex;
             justify-content: space-between;
             align-items: center;
             border-bottom: 1px solid var(--border);
+            margin: 0 auto;
         }
 
+        /* Rainbow only appears on hover */
         .card { 
             background: var(--card); 
             border: 1px solid var(--border); 
-            padding: 15px; 
+            padding: 18px; 
             border-radius: 12px; 
             width: 260px; 
             transition: 0.3s;
             position: relative;
+            z-index: 1;
         }
 
-        /* Rainbow border on active cards */
         .card:hover {
+            transform: scale(1.02);
             border-color: transparent;
-            background-clip: padding-box;
-            box-shadow: 0 0 10px rgba(0, 255, 102, 0.3);
         }
 
-        .card:hover::after {
+        .card:hover::before {
             content: '';
             position: absolute;
             top: -1px; left: -1px; right: -1px; bottom: -1px;
-            background: linear-gradient(45deg, red, orange, yellow, green, blue, indigo, violet);
+            background: linear-gradient(45deg, #ff0000, #ff7300, #fffb00, #48ff00, #00ffd5, #002bff, #7a00ff);
+            background-size: 400%;
             z-index: -1;
             border-radius: 13px;
-            animation: rainbow-flow 3s linear infinite;
-            background-size: 200%;
+            animation: rainbow-border 3s linear infinite;
         }
 
         /* --- TABS --- */
-        .tab-bar { display: flex; gap: 10px; margin: 20px auto; background: #1a1a1a; padding: 10px; border-radius: 10px; }
-        .tab { padding: 10px 30px; cursor: pointer; border-radius: 5px; color: #888; font-weight: bold; }
-        .tab.active { background: var(--neon); color: black; box-shadow: 0 0 10px var(--neon); }
+        .tab-bar { display: flex; gap: 10px; margin: 25px auto; background: #151515; padding: 8px; border-radius: 8px; width: fit-content; }
+        .tab { padding: 10px 25px; cursor: pointer; border-radius: 5px; color: #666; font-weight: bold; transition: 0.3s; }
+        .tab.active { background: var(--neon); color: black; }
 
-        /* --- VERSION TAG --- */
-        .version {
-            position: fixed;
-            bottom: 10px;
-            right: 15px;
-            font-size: 12px;
-            color: #444;
-            pointer-events: none;
-        }
+        .inv-col { background: #0f0f0f; padding: 15px; border-radius: 10px; width: 320px; border: 1px solid var(--border); height: 550px; overflow-y: auto; }
+        .item { background: #1a1a1a; padding: 10px; margin: 8px 0; border-left: 3px solid var(--neon); font-size: 0.85em; color: #ccc; }
 
-        .stat-row { display: flex; justify-content: space-between; margin: 5px 0; font-size: 0.9em; }
-        .ready { color: var(--neon); font-weight: bold; }
+        .version { position: fixed; bottom: 15px; right: 20px; font-size: 11px; color: #333; letter-spacing: 1px; }
+        .stat-row { display: flex; justify-content: space-between; margin: 6px 0; font-size: 0.9em; }
+        .ready { color: var(--neon); font-weight: bold; text-shadow: 0 0 5px var(--neon); }
     </style>
 </head>
 <body>
 
     <div id="login-screen">
-        <div class="rainbow-box">
-            <h1 style="margin:0; color:var(--neon);">EVENTSPLOIT</h1>
-            <p style="color:#aaa;">V1.2.4 Premium Dashboard</p>
-            <input type="text" id="key-input" style="background:#000; border:1px solid #333; color:white; padding:12px; border-radius:5px; width:280px; margin-bottom:15px;" placeholder="Enter Key...">
+        <div class="login-box">
+            <h1 style="margin:0; color:var(--neon); letter-spacing: 2px;">EVENTSPLOIT</h1>
+            <p style="color:#555; margin-bottom: 25px;">v1.2.4 Tracker Interface</p>
+            <input type="text" id="key-input" style="background:#000; border:1px solid #333; color:white; padding:12px; border-radius:6px; width:280px; margin-bottom:20px; text-align:center;" placeholder="PASTE ACCESS KEY">
             <br>
             <button class="btn" onclick="login()">LOGIN</button>
             <button class="btn btn-secondary" onclick="window.open('https://your-key-link.com')">GET KEY</button>
@@ -159,8 +146,8 @@
 
     <div id="dashboard">
         <div class="header">
-            <h2 style="color:var(--neon); margin:0;">EVENTSPLOIT <span style="color:white">DASH</span></h2>
-            <button class="btn" style="background:#ff4444;" onclick="logout()">LOGOUT</button>
+            <h2 style="color:var(--neon); margin:0; font-size: 1.2em;">DASHBOARD <span style="color:white; font-weight:normal;">| MAIN</span></h2>
+            <button class="btn" style="background:#ff3333; color:white; padding: 8px 15px;" onclick="logout()">LOGOUT</button>
         </div>
 
         <div class="tab-bar">
@@ -168,21 +155,24 @@
             <div class="tab" id="t-inv" onclick="switchTab('inv')">INVENTORY</div>
         </div>
 
-        <div id="page-alts" class="page active" style="display:flex; flex-wrap:wrap; justify-content:center; gap:15px; width:95%; margin:auto;">
-            <div id="grid" style="display:flex; flex-wrap:wrap; justify-content:center; gap:15px;"></div>
+        <div id="page-alts" class="page active" style="display:flex; flex-wrap:wrap; justify-content:center; gap:20px; width:95%; margin:auto;">
+            <div id="grid" style="display:flex; flex-wrap:wrap; justify-content:center; gap:20px;"></div>
         </div>
 
         <div id="page-inv" class="page" style="display:none; width:95%; margin:auto;">
-            <h3 id="inv-user" style="text-align:center; color:var(--neon);">SELECT AN ALT</h3>
-            <div style="display:flex; justify-content:center; gap:20px; flex-wrap:wrap;">
-                <div style="background:#161616; padding:15px; border-radius:10px; width:300px; border:1px solid #333; height:500px; overflow-y:auto;">
-                    <h4 style="border-bottom:1px solid var(--neon);">PETS</h4><div id="inv-pets"></div>
+            <h3 id="inv-user" style="text-align:center; color:var(--neon); margin-bottom:20px;">CHOOSE AN ALT</h3>
+            <div style="display:flex; justify-content:center; gap:25px; flex-wrap:wrap;">
+                <div class="inv-col">
+                    <h4 style="border-bottom:1px solid #222; padding-bottom:10px; text-align:center;">PETS</h4>
+                    <div id="inv-pets"></div>
                 </div>
-                <div style="background:#161616; padding:15px; border-radius:10px; width:300px; border:1px solid #333; height:500px; overflow-y:auto;">
-                    <h4 style="border-bottom:1px solid var(--neon);">FOOD</h4><div id="inv-food"></div>
+                <div class="inv-col">
+                    <h4 style="border-bottom:1px solid #222; padding-bottom:10px; text-align:center;">FOOD</h4>
+                    <div id="inv-food"></div>
                 </div>
-                <div style="background:#161616; padding:15px; border-radius:10px; width:300px; border:1px solid #333; height:500px; overflow-y:auto;">
-                    <h4 style="border-bottom:1px solid var(--neon);">GIFTS</h4><div id="inv-gifts"></div>
+                <div class="inv-col">
+                    <h4 style="border-bottom:1px solid #222; padding-bottom:10px; text-align:center;">GIFTS</h4>
+                    <div id="inv-gifts"></div>
                 </div>
             </div>
         </div>
@@ -204,7 +194,7 @@
         }
 
         function login() {
-            const k = document.getElementById('key-input').value;
+            const k = document.getElementById('key-input').value.trim();
             if(k.length > 5) {
                 localStorage.setItem("tracker_key", k);
                 location.reload();
@@ -236,8 +226,13 @@
             const fill = (id, list) => {
                 const el = document.getElementById(id);
                 el.innerHTML = "";
-                Object.values(list || {}).forEach(i => {
-                    el.innerHTML += `<div style="background:#222; padding:8px; margin:5px 0; border-left:3px solid var(--neon); font-size:0.8em;">${(i.id || "Item").replace(/_/g, " ")}</div>`;
+                if(!list || Object.keys(list).length === 0) {
+                    el.innerHTML = '<div style="color:#333; text-align:center; padding-top:20px;">Empty</div>';
+                    return;
+                }
+                Object.values(list).forEach(i => {
+                    const itemName = (i.id || "Unknown").replace(/_/g, " ");
+                    el.innerHTML += `<div class="item">${itemName}</div>`;
                 });
             };
             fill('inv-pets', inv.pets); fill('inv-food', inv.food); fill('inv-gifts', inv.gifts);
@@ -245,27 +240,29 @@
 
         async function load() {
             const k = localStorage.getItem("tracker_key");
-            const r = await fetch(`/api/data?key=${k}`);
-            if(r.ok) {
-                allData = await r.json();
-                const grid = document.getElementById('grid');
-                grid.innerHTML = "";
-                for(let name in allData) {
-                    const p = allData[name];
-                    grid.innerHTML += `
-                        <div class="card" onclick="selectPlayer('${name}')">
-                            <h3 style="color:var(--neon); margin:0;">${name}</h3>
-                            <div style="font-size:0.75em; color:#666; margin-bottom:10px;">📍 ${p.location || 'Main Map'}</div>
-                            <div class="stat-row"><span>BUCKS:</span> <b>${p.bucks}</b></div>
-                            <div class="stat-row"><span>GINGER:</span> <b>${p.gingerbread}</b></div>
-                            <hr style="border:0; border-top:1px solid #222;">
-                            <div class="stat-row"><span>🔨 HUMBUG:</span> <span class="${p.humbug=='READY'?'ready':''}">${p.humbug}</span></div>
-                            <div class="stat-row"><span>🛷 SLEIGH:</span> <span class="${p.sleighball=='READY'?'ready':''}">${p.sleighball}</span></div>
-                            <div class="stat-row"><span>⭐ STAR:</span> <span class="${p.starcatch=='READY'?'ready':''}">${p.starcatch}</span></div>
-                        </div>`;
+            try {
+                const r = await fetch(`/api/data?key=${k}`);
+                if(r.ok) {
+                    allData = await r.json();
+                    const grid = document.getElementById('grid');
+                    grid.innerHTML = "";
+                    for(let name in allData) {
+                        const p = allData[name];
+                        grid.innerHTML += `
+                            <div class="card" onclick="selectPlayer('${name}')">
+                                <h3 style="color:var(--neon); margin:0; font-size:1.1em;">${name}</h3>
+                                <div style="font-size:0.75em; color:#555; margin-bottom:12px;">📍 ${p.location || 'Main Map'}</div>
+                                <div class="stat-row"><span>BUCKS</span> <b>${(p.bucks || 0).toLocaleString()}</b></div>
+                                <div class="stat-row"><span>GINGER</span> <b>${(p.gingerbread || 0).toLocaleString()}</b></div>
+                                <hr style="border:0; border-top:1px solid #1a1a1a; margin:12px 0;">
+                                <div class="stat-row"><span>🔨 HUMBUG</span> <span class="${p.humbug=='READY'?'ready':''}">${p.humbug}</span></div>
+                                <div class="stat-row"><span>🛷 SLEIGH</span> <span class="${p.sleighball=='READY'?'ready':''}">${p.sleighball}</span></div>
+                                <div class="stat-row"><span>⭐ STAR</span> <span class="${p.starcatch=='READY'?'ready':''}">${p.starcatch}</span></div>
+                            </div>`;
+                    }
+                    if(selected) updateInv();
                 }
-                if(selected) updateInv();
-            }
+            } catch(e) {}
         }
 
         function startSync() { setInterval(load, 3000); load(); }
