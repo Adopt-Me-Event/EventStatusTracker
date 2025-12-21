@@ -1,11 +1,22 @@
 const express = require('express');
-const path = require('path');
+const path = require('path'); // This helps find files reliably
 const app = express();
+
 app.use(express.json());
 
-let players = {}; // This holds all active accounts
+let players = {};
 
-// Route to receive data from Roblox
+// 1. THE FIX: This tells the server exactly what to show at the URL
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'index.html'));
+});
+
+// 2. This is the API for the dashboard data
+app.get('/api/data', (req, res) => {
+    res.json(players);
+});
+
+// 3. This receives data from Roblox
 app.post('/update', (req, res) => {
     const data = req.body;
     players[data.playerName] = {
@@ -15,10 +26,7 @@ app.post('/update', (req, res) => {
     res.sendStatus(200);
 });
 
-// Route for the website to get the data
-app.get('/api/data', (req, res) => res.json(players));
-
-// Route to show the dashboard
-app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'index.html')));
-
-app.listen(10000, () => console.log("Multi-account server live on port 10000"));
+const PORT = process.env.PORT || 10000;
+app.listen(PORT, () => {
+    console.log(`Multi-account server live on port ${PORT}`);
+});
