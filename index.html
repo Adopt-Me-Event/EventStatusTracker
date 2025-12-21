@@ -12,7 +12,6 @@
             --border: #222;
         }
 
-        /* Rainbow Border Animation */
         @keyframes rainbow-border {
             0% { background-position: 0% 50%; }
             50% { background-position: 100% 50%; }
@@ -30,7 +29,7 @@
             min-height: 100vh;
         }
 
-        /* --- LOGIN SECTION --- */
+        /* --- LOGIN SCREEN --- */
         #login-screen {
             display: flex;
             flex-direction: column;
@@ -50,7 +49,6 @@
             width: 350px;
         }
 
-        /* --- INPUT & BUTTONS --- */
         #key-input {
             background: #000;
             border: 1px solid #333;
@@ -61,7 +59,6 @@
             margin-bottom: 20px;
             text-align: center;
             outline: none;
-            transition: 0.3s;
         }
 
         #key-input:focus { border-color: var(--neon); }
@@ -74,11 +71,10 @@
             border-radius: 6px;
             font-weight: bold;
             cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            transition: all 0.3s ease;
             margin: 8px;
             width: 90%;
             text-transform: uppercase;
-            letter-spacing: 1px;
         }
 
         .btn:hover {
@@ -97,7 +93,7 @@
             color: var(--neon);
         }
 
-        /* --- DASHBOARD STYLES --- */
+        /* --- DASHBOARD --- */
         #dashboard { display: none; width: 100%; }
         
         .header {
@@ -116,17 +112,13 @@
             padding: 18px; 
             border-radius: 12px; 
             width: 260px; 
-            transition: 0.3s ease;
+            transition: 0.3s;
             position: relative;
             cursor: pointer;
         }
 
-        .card:hover {
-            transform: translateY(-5px);
-            border-color: transparent;
-        }
+        .card:hover { transform: translateY(-5px); border-color: transparent; }
 
-        /* Rainbow only triggers on Hover */
         .card:hover::after {
             content: '';
             position: absolute;
@@ -139,36 +131,35 @@
         }
 
         .tab-bar { display: flex; gap: 10px; margin: 25px auto; background: #151515; padding: 8px; border-radius: 8px; width: fit-content; }
-        .tab { padding: 10px 25px; cursor: pointer; border-radius: 5px; color: #666; font-weight: bold; transition: 0.3s; }
-        .tab.active { background: var(--neon); color: black; box-shadow: 0 0 10px var(--neon); }
+        .tab { padding: 10px 25px; cursor: pointer; border-radius: 5px; color: #666; font-weight: bold; }
+        .tab.active { background: var(--neon); color: black; }
 
         .inv-col { background: #0f0f0f; padding: 15px; border-radius: 10px; width: 320px; border: 1px solid var(--border); height: 500px; overflow-y: auto; }
         .item { background: #1a1a1a; padding: 10px; margin: 8px 0; border-left: 3px solid var(--neon); font-size: 0.85em; }
 
-        .version-tag { position: fixed; bottom: 15px; left: 20px; font-size: 11px; color: #333; font-weight: bold; letter-spacing: 1px; }
+        .version-tag { position: fixed; bottom: 15px; left: 20px; font-size: 11px; color: #333; }
         .stat-row { display: flex; justify-content: space-between; margin: 6px 0; font-size: 0.9em; }
-        .ready { color: var(--neon); font-weight: bold; text-shadow: 0 0 5px var(--neon); }
+        .ready { color: var(--neon); font-weight: bold; }
     </style>
 </head>
 <body>
 
     <div id="login-screen">
         <div class="login-box">
-            <h1 style="margin:0; color:var(--neon); letter-spacing: 2px; font-style: italic;">EVENTSPLOIT</h1>
-            <p style="color:#555; margin-bottom: 25px; font-size: 0.8em;">PREMIUM HUB V1.2.4</p>
+            <h1 style="margin:0; color:var(--neon); letter-spacing: 2px;">EVENTSPLOIT</h1>
+            <p style="color:#555; margin-bottom: 25px;">V1.2.4 PREMIUM HUB</p>
             
-            <input type="text" id="key-input" placeholder="ENTER KEY...">
-            
+            <input type="text" id="key-input" placeholder="PASTE KEY FROM LOOTDEST">
             <br>
-            <button class="btn" onclick="loginAction()">LOGIN</button>
+            <button class="btn" onclick="tryLogin()">LOGIN</button>
             <button class="btn btn-secondary" onclick="window.open('https://lootdest.org/s?8VGiorkT', '_blank')">GET KEY</button>
         </div>
     </div>
 
     <div id="dashboard">
         <div class="header">
-            <h2 style="color:var(--neon); margin:0; font-size: 1.2em;">DASHBOARD <span style="color:white; font-weight:normal;">/ ALTS</span></h2>
-            <button class="btn" style="background:#ff3333; color:white; width:auto; padding: 8px 15px;" onclick="logoutAction()">LOGOUT</button>
+            <h2 style="color:var(--neon); margin:0;">DASHBOARD <span style="color:white; font-weight:normal;">/ MAIN</span></h2>
+            <button class="btn" style="background:#ff3333; color:white; width:auto; padding: 8px 15px;" onclick="doLogout()">LOGOUT</button>
         </div>
 
         <div class="tab-bar">
@@ -181,7 +172,7 @@
         </div>
 
         <div id="page-inv" style="display:none; width:95%; margin:auto;">
-            <h3 id="inv-user" style="text-align:center; color:var(--neon); margin-bottom:20px;">NO ALT SELECTED</h3>
+            <h3 id="inv-user" style="text-align:center; color:var(--neon); margin-bottom:20px;">CHOOSE AN ALT PLAYER</h3>
             <div style="display:flex; justify-content:center; gap:25px; flex-wrap:wrap;">
                 <div class="inv-col"><h4>PETS</h4><div id="inv-pets"></div></div>
                 <div class="inv-col"><h4>FOOD</h4><div id="inv-food"></div></div>
@@ -190,41 +181,42 @@
         </div>
     </div>
 
-    <div class="version-tag">VERSION 1.2.4 (STABLE) - BUILD_8VGI</div>
+    <div class="version-tag">VERSION 1.2.4 (STABLE) - LOOTDEST_BUILD_8VGI</div>
 
     <script>
-        // --- LOGIC: AUTHENTICATION & REDIRECTION ---
+        // --- KEY SYSTEM LOGIC ---
         function checkPersistentAuth() {
-            const savedKey = localStorage.getItem("event_sploit_auth");
-            if(savedKey) {
-                showDashboard();
+            const key = localStorage.getItem("active_sploit_key");
+            if(key) {
+                initDashboard();
             }
         }
 
-        function loginAction() {
-            const key = document.getElementById('key-input').value.trim();
-            if(key.length > 5) {
-                localStorage.setItem("event_sploit_auth", key);
-                showDashboard();
+        function tryLogin() {
+            const input = document.getElementById('key-input').value.trim();
+            // This logic allows any key obtained from your LootDest link
+            if(input.length > 4) {
+                localStorage.setItem("active_sploit_key", input);
+                initDashboard();
             } else {
-                alert("Please enter a valid key from the link.");
+                alert("Please enter the key obtained from LootDest.");
             }
         }
 
-        function logoutAction() {
-            localStorage.removeItem("event_sploit_auth");
+        function doLogout() {
+            localStorage.removeItem("active_sploit_key");
             location.reload();
         }
 
-        function showDashboard() {
+        function initDashboard() {
             document.getElementById('login-screen').style.display = 'none';
             document.getElementById('dashboard').style.display = 'block';
-            startDataSync();
+            startDataCycle();
         }
 
-        // --- LOGIC: DASHBOARD & DATA ---
-        let allData = {};
-        let selectedAlt = "";
+        // --- DASHBOARD DATA LOGIC ---
+        let currentData = {};
+        let activePlayer = "";
 
         function switchTab(t) {
             document.getElementById('page-alts').style.display = t === 'alts' ? 'flex' : 'none';
@@ -233,26 +225,26 @@
             document.getElementById('t-inv').classList.toggle('active', t === 'inv');
         }
 
-        function selectAlt(name) {
-            selectedAlt = name;
-            renderInventory();
+        function viewPlayer(name) {
+            activePlayer = name;
+            drawInventory();
             switchTab('inv');
         }
 
-        async function fetchStats() {
-            const k = localStorage.getItem("event_sploit_auth");
+        async function sync() {
+            const k = localStorage.getItem("active_sploit_key");
             try {
                 const res = await fetch(`/api/data?key=${k}`);
                 if(res.ok) {
-                    allData = await res.json();
+                    currentData = await res.json();
                     const grid = document.getElementById('grid');
                     grid.innerHTML = "";
-                    for(let name in allData) {
-                        const p = allData[name];
+                    for(let name in currentData) {
+                        const p = currentData[name];
                         grid.innerHTML += `
-                            <div class="card" onclick="selectAlt('${name}')">
+                            <div class="card" onclick="viewPlayer('${name}')">
                                 <h3 style="color:var(--neon); margin:0;">${name}</h3>
-                                <div style="font-size:0.75em; color:#555; margin-bottom:12px;">📍 ${p.location || 'Game'}</div>
+                                <div style="font-size:0.75em; color:#555; margin-bottom:12px;">📍 ${p.location || 'Main Map'}</div>
                                 <div class="stat-row"><span>BUCKS</span> <b>${p.bucks || 0}</b></div>
                                 <div class="stat-row"><span>GINGER</span> <b>${p.gingerbread || 0}</b></div>
                                 <hr style="border:0; border-top:1px solid #1a1a1a; margin:12px 0;">
@@ -261,15 +253,15 @@
                                 <div class="stat-row"><span>⭐ STAR</span> <span class="${p.starcatch=='READY'?'ready':''}">${p.starcatch}</span></div>
                             </div>`;
                     }
-                    if(selectedAlt) renderInventory();
+                    if(activePlayer) drawInventory();
                 }
             } catch(e) {}
         }
 
-        function renderInventory() {
-            if(!selectedAlt || !allData[selectedAlt]) return;
-            document.getElementById('inv-user').innerText = "VIEWING: " + selectedAlt;
-            const inv = allData[selectedAlt].inventory || {};
+        function drawInventory() {
+            if(!activePlayer || !currentData[activePlayer]) return;
+            document.getElementById('inv-user').innerText = "INVENTORY: " + activePlayer;
+            const inv = currentData[activePlayer].inventory || {};
             const fill = (id, list) => {
                 const el = document.getElementById(id);
                 el.innerHTML = "";
@@ -280,9 +272,8 @@
             fill('inv-pets', inv.pets); fill('inv-food', inv.food); fill('inv-gifts', inv.gifts);
         }
 
-        function startDataSync() { setInterval(fetchStats, 3000); fetchStats(); }
+        function startDataCycle() { setInterval(sync, 3000); sync(); }
         
-        // Run on load
         checkPersistentAuth();
     </script>
 </body>
