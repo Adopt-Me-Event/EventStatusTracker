@@ -1,77 +1,12 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Multi-Tracker (Key Required)</title>
+    <title>Adopt Me Tracker Pro</title>
     <style>
-        body { background: #0a0a0a; color: #eee; font-family: sans-serif; display: flex; flex-direction: column; align-items: center; padding: 50px; }
-        .login-box { background: #1a1a1a; padding: 30px; border-radius: 15px; border: 1px solid #333; text-align: center; }
-        input { background: #000; color: #00ffcc; border: 1px solid #00ffcc; padding: 12px; border-radius: 5px; width: 280px; margin: 15px 0; }
-        .btn { background: #00ffcc; color: #000; padding: 10px 25px; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; }
-        .link-text { color: #888; font-size: 0.8em; margin-top: 20px; }
-        a { color: #00ffcc; text-decoration: none; }
-        .card { background: #1e1e1e; border: 2px solid #00ffcc; padding: 15px; width: 220px; border-radius: 10px; margin: 10px; }
-    </style>
-</head>
-<body>
-
-    <div id="login-screen" class="login-box">
-        <h2>Authentication</h2>
-        <p>Enter your daily access key below</p>
-        <input type="text" id="key-field" placeholder="KEY_xxxxxxxxxxxx">
-        <br>
-        <button class="btn" onclick="submitKey()">Unlock Tracker</button>
-        
-        <div class="link-text">
-            Don't have a key? <br>
-            <a href="https://lootdest.org/s?8VGiorkT" target="_blank">Click here to get today's KEY</a>
-        </div>
-        <p id="msg" style="color:red"></p>
-    </div>
-
-    <div id="main-display" style="display:none; flex-wrap: wrap; justify-content: center;"></div>
-
-    <script>
-        let savedKey = localStorage.getItem("access_key");
-
-        function submitKey() {
-            const val = document.getElementById('key-field').value;
-            localStorage.setItem("access_key", val);
-            savedKey = val;
-            checkAndLoad();
-        }
-
-        async function checkAndLoad() {
-            if(!savedKey) return;
-            
-            const r = await fetch(`/api/data?key=${savedKey}`);
-            if(r.ok) {
-                const data = await r.json();
-                document.getElementById('login-screen').style.display = 'none';
-                document.getElementById('main-display').style.display = 'flex';
-                renderCards(data);
-            } else {
-                document.getElementById('msg').innerText = "Key Expired or Invalid!";
-            }
-        }
-
-        function renderCards(data) {
-            const container = document.getElementById('main-display');
-            container.innerHTML = '';
-            for(let name in data) {
-                const p = data[name];
-                container.innerHTML += `
-                    <div class="card">
-                        <h3 style="margin:0; color:#00ffcc">${name}</h3>
-                        <p>🍪 Gingerbread: ${p.gingerbread}</p>
-                        <p>🔨 Humbug: ${p.humbug}</p>
-                        <p>⭐ Starcatch: ${p.starcatch}</p>
-                        <small>Status: ${p.inGame ? '🟢 ACTIVE' : '⚪ IDLE'}</small>
-                    </div>`;
-            }
-        }
-
-        setInterval(checkAndLoad, 3000);
-        if(savedKey) checkAndLoad();
-    </script>
-</body>
-</html>
+        body { background: #0f0f0f; color: white; font-family: 'Segoe UI', sans-serif; display: flex; flex-direction: column; align-items: center; padding: 40px; }
+        .auth-card { background: #1a1a1a; padding: 30px; border-radius: 15px; border: 1px solid #00ffcc; text-align: center; max-width: 400px; box-shadow: 0 0 20px rgba(0,255,204,0.2); }
+        input { background: #000; color: #00ffcc; border: 1px solid #333; padding: 12px; border-radius: 8px; width: 80%; margin: 20px 0; outline: none; text-align: center; font-size: 1.1em; }
+        input:focus { border-color: #00ffcc; }
+        .btn { background: #00ffcc; color: black; padding: 12px 30px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.3s; }
+        .btn:hover { transform: scale(1.05); background: #00cca3; }
+        .card { background: #1e1e1e; border: 1px solid #333; padding: 20px; width: 260px; border
