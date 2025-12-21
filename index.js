@@ -3,34 +3,39 @@ const path = require('path');
 const app = express();
 app.use(express.json());
 
-// This object holds all players. Key = Player Name, Value = Their Data
 let players = {}; 
 
-app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'index.html'));
-});
+// --- PASSCODE LOGIC ---
+// This generates a unique code for the day (e.g., "Code-20251221")
+const getDailyPasscode = () => {
+    const date = new Date().toISOString().slice(0, 10).replace(/-/g, "");
+    return "VIP" + date; // Your passcode today would be VIP20251221
+};
 
-// Sends all player data to the dashboard
+app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'index.html')));
+
+// Protect the data: Only send if the passcode in the request is correct
 app.get('/api/data', (req, res) => {
-    res.json(players);
+    const userCode = req.query.pass;
+    if (userCode === getDailyPasscode()) {
+        res.json(players);
+    } else {
+        res.status(401).json({ error: "Invalid or Expired Passcode" });
+    }
 });
 
-// Receives data from any account running the script
 app.post('/update', (req, res) => {
-    const data = req.body;
-    if (!data.playerName) return res.sendStatus(400);
-
-    // This creates or updates the specific slot for this player name
-    players[data.playerName] = {
-        bucks: data.bucks,
-        gingerbread: data.gingerbread,
-        humbug: data.humbug,
-        sleighball: data.sleighball,
-        starcatch: data.starcatch,
+    const d = req.body;
+    players[d.playerName] = {
+        bucks: d.bucks,
+        gingerbread: d.gingerbread,
+        humbug: d.humbug,
+        sleighball: d.sleighball,
+        starcatch: d.starcatch,
+        inGame: d.inGame,
         lastSeen: new Date().toLocaleTimeString()
     };
     res.sendStatus(200);
 });
 
-const PORT = process.env.PORT || 10000;
-app.listen(PORT, () => console.log(`Multi-player tracker live on port ${PORT}`));
+app.listen(10000, () => console.log("Secure Tracker Live. Passcode is: " + getDailyPasscode()));
