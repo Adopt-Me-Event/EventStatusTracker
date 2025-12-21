@@ -12,6 +12,7 @@
             --border: #222;
         }
 
+        /* Rainbow Border Animation */
         @keyframes rainbow-border {
             0% { background-position: 0% 50%; }
             50% { background-position: 100% 50%; }
@@ -29,7 +30,7 @@
             min-height: 100vh;
         }
 
-        /* --- LOGIN SCREEN --- */
+        /* --- LOGIN SECTION --- */
         #login-screen {
             display: flex;
             flex-direction: column;
@@ -45,11 +46,26 @@
             border-radius: 12px;
             text-align: center;
             border: 1px solid var(--border);
-            box-shadow: 0 10px 40px rgba(0,0,0,0.7);
+            box-shadow: 0 10px 40px rgba(0,0,0,0.8);
             width: 350px;
         }
 
-        /* --- BUTTON ANIMATIONS --- */
+        /* --- INPUT & BUTTONS --- */
+        #key-input {
+            background: #000;
+            border: 1px solid #333;
+            color: white;
+            padding: 12px;
+            border-radius: 6px;
+            width: 85%;
+            margin-bottom: 20px;
+            text-align: center;
+            outline: none;
+            transition: 0.3s;
+        }
+
+        #key-input:focus { border-color: var(--neon); }
+
         .btn {
             background: var(--neon);
             color: black;
@@ -58,16 +74,16 @@
             border-radius: 6px;
             font-weight: bold;
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             margin: 8px;
-            width: 80%;
+            width: 90%;
             text-transform: uppercase;
             letter-spacing: 1px;
         }
 
         .btn:hover {
             transform: scale(1.05);
-            box-shadow: 0 0 20px rgba(0, 255, 102, 0.5);
+            box-shadow: 0 0 20px rgba(0, 255, 102, 0.4);
         }
 
         .btn-secondary {
@@ -81,7 +97,7 @@
             color: var(--neon);
         }
 
-        /* --- DASHBOARD --- */
+        /* --- DASHBOARD STYLES --- */
         #dashboard { display: none; width: 100%; }
         
         .header {
@@ -100,9 +116,9 @@
             padding: 18px; 
             border-radius: 12px; 
             width: 260px; 
-            transition: 0.3s;
+            transition: 0.3s ease;
             position: relative;
-            z-index: 1;
+            cursor: pointer;
         }
 
         .card:hover {
@@ -110,7 +126,8 @@
             border-color: transparent;
         }
 
-        .card:hover::before {
+        /* Rainbow only triggers on Hover */
+        .card:hover::after {
             content: '';
             position: absolute;
             top: -1px; left: -1px; right: -1px; bottom: -1px;
@@ -125,10 +142,10 @@
         .tab { padding: 10px 25px; cursor: pointer; border-radius: 5px; color: #666; font-weight: bold; transition: 0.3s; }
         .tab.active { background: var(--neon); color: black; box-shadow: 0 0 10px var(--neon); }
 
-        .inv-col { background: #0f0f0f; padding: 15px; border-radius: 10px; width: 320px; border: 1px solid var(--border); height: 550px; overflow-y: auto; }
-        .item { background: #1a1a1a; padding: 10px; margin: 8px 0; border-left: 3px solid var(--neon); font-size: 0.85em; color: #ccc; }
+        .inv-col { background: #0f0f0f; padding: 15px; border-radius: 10px; width: 320px; border: 1px solid var(--border); height: 500px; overflow-y: auto; }
+        .item { background: #1a1a1a; padding: 10px; margin: 8px 0; border-left: 3px solid var(--neon); font-size: 0.85em; }
 
-        .version { position: fixed; bottom: 15px; left: 20px; font-size: 11px; color: #333; letter-spacing: 1px; }
+        .version-tag { position: fixed; bottom: 15px; left: 20px; font-size: 11px; color: #333; font-weight: bold; letter-spacing: 1px; }
         .stat-row { display: flex; justify-content: space-between; margin: 6px 0; font-size: 0.9em; }
         .ready { color: var(--neon); font-weight: bold; text-shadow: 0 0 5px var(--neon); }
     </style>
@@ -137,21 +154,21 @@
 
     <div id="login-screen">
         <div class="login-box">
-            <h1 style="margin:0; color:var(--neon); letter-spacing: 2px;">EVENTSPLOIT</h1>
-            <p style="color:#555; margin-bottom: 25px;">V1.2.4 | AUTHENTICATION</p>
+            <h1 style="margin:0; color:var(--neon); letter-spacing: 2px; font-style: italic;">EVENTSPLOIT</h1>
+            <p style="color:#555; margin-bottom: 25px; font-size: 0.8em;">PREMIUM HUB V1.2.4</p>
             
-            <input type="text" id="key-input" style="background:#000; border:1px solid #333; color:white; padding:12px; border-radius:6px; width:85%; margin-bottom:20px; text-align:center; outline:none;" placeholder="PASTE KEY HERE">
+            <input type="text" id="key-input" placeholder="ENTER KEY...">
             
             <br>
-            <button class="btn" onclick="login()">LOGIN</button>
+            <button class="btn" onclick="loginAction()">LOGIN</button>
             <button class="btn btn-secondary" onclick="window.open('https://lootdest.org/s?8VGiorkT', '_blank')">GET KEY</button>
         </div>
     </div>
 
     <div id="dashboard">
         <div class="header">
-            <h2 style="color:var(--neon); margin:0; font-size: 1.2em;">DASHBOARD <span style="color:white; font-weight:normal;">| MAIN</span></h2>
-            <button class="btn" style="background:#ff3333; color:white; width:auto; padding: 8px 15px;" onclick="logout()">LOGOUT</button>
+            <h2 style="color:var(--neon); margin:0; font-size: 1.2em;">DASHBOARD <span style="color:white; font-weight:normal;">/ ALTS</span></h2>
+            <button class="btn" style="background:#ff3333; color:white; width:auto; padding: 8px 15px;" onclick="logoutAction()">LOGOUT</button>
         </div>
 
         <div class="tab-bar">
@@ -159,12 +176,12 @@
             <div class="tab" id="t-inv" onclick="switchTab('inv')">INVENTORY</div>
         </div>
 
-        <div id="page-alts" class="page active" style="display:flex; flex-wrap:wrap; justify-content:center; gap:20px; width:95%; margin:auto;">
+        <div id="page-alts" style="display:flex; flex-wrap:wrap; justify-content:center; gap:20px; width:95%; margin:auto;">
             <div id="grid" style="display:flex; flex-wrap:wrap; justify-content:center; gap:20px;"></div>
         </div>
 
-        <div id="page-inv" class="page" style="display:none; width:95%; margin:auto;">
-            <h3 id="inv-user" style="text-align:center; color:var(--neon); margin-bottom:20px;">SELECT AN ALT PLAYER</h3>
+        <div id="page-inv" style="display:none; width:95%; margin:auto;">
+            <h3 id="inv-user" style="text-align:center; color:var(--neon); margin-bottom:20px;">NO ALT SELECTED</h3>
             <div style="display:flex; justify-content:center; gap:25px; flex-wrap:wrap;">
                 <div class="inv-col"><h4>PETS</h4><div id="inv-pets"></div></div>
                 <div class="inv-col"><h4>FOOD</h4><div id="inv-food"></div></div>
@@ -173,35 +190,41 @@
         </div>
     </div>
 
-    <div class="version">VERSION 1.2.4 (STABLE) BUILD 8VGI</div>
+    <div class="version-tag">VERSION 1.2.4 (STABLE) - BUILD_8VGI</div>
 
     <script>
-        let allData = {};
-        let selected = "";
-
-        function checkAuth() {
-            const k = localStorage.getItem("tracker_key");
-            if(k) {
-                document.getElementById('login-screen').style.display='none';
-                document.getElementById('dashboard').style.display='block';
-                startSync();
+        // --- LOGIC: AUTHENTICATION & REDIRECTION ---
+        function checkPersistentAuth() {
+            const savedKey = localStorage.getItem("event_sploit_auth");
+            if(savedKey) {
+                showDashboard();
             }
         }
 
-        function login() {
-            const k = document.getElementById('key-input').value.trim();
-            if(k.length > 5) {
-                localStorage.setItem("tracker_key", k);
-                location.reload();
+        function loginAction() {
+            const key = document.getElementById('key-input').value.trim();
+            if(key.length > 5) {
+                localStorage.setItem("event_sploit_auth", key);
+                showDashboard();
             } else {
-                alert("Invalid Key! Please use the 'Get Key' button.");
+                alert("Please enter a valid key from the link.");
             }
         }
 
-        function logout() {
-            localStorage.removeItem("tracker_key");
+        function logoutAction() {
+            localStorage.removeItem("event_sploit_auth");
             location.reload();
         }
+
+        function showDashboard() {
+            document.getElementById('login-screen').style.display = 'none';
+            document.getElementById('dashboard').style.display = 'block';
+            startDataSync();
+        }
+
+        // --- LOGIC: DASHBOARD & DATA ---
+        let allData = {};
+        let selectedAlt = "";
 
         function switchTab(t) {
             document.getElementById('page-alts').style.display = t === 'alts' ? 'flex' : 'none';
@@ -210,60 +233,57 @@
             document.getElementById('t-inv').classList.toggle('active', t === 'inv');
         }
 
-        function selectPlayer(name) {
-            selected = name;
-            updateInv();
+        function selectAlt(name) {
+            selectedAlt = name;
+            renderInventory();
             switchTab('inv');
         }
 
-        function updateInv() {
-            if(!selected || !allData[selected]) return;
-            document.getElementById('inv-user').innerText = "INVENTORY: " + selected;
-            const inv = allData[selected].inventory || {};
-            const fill = (id, list) => {
-                const el = document.getElementById(id);
-                el.innerHTML = "";
-                if(!list || Object.keys(list).length === 0) {
-                    el.innerHTML = '<div style="color:#333; text-align:center; padding-top:20px;">Empty</div>';
-                    return;
-                }
-                Object.values(list).forEach(i => {
-                    const itemName = (i.id || "Unknown").replace(/_/g, " ");
-                    el.innerHTML += `<div class="item">${itemName}</div>`;
-                });
-            };
-            fill('inv-pets', inv.pets); fill('inv-food', inv.food); fill('inv-gifts', inv.gifts);
-        }
-
-        async function load() {
-            const k = localStorage.getItem("tracker_key");
+        async function fetchStats() {
+            const k = localStorage.getItem("event_sploit_auth");
             try {
-                const r = await fetch(`/api/data?key=${k}`);
-                if(r.ok) {
-                    allData = await r.json();
+                const res = await fetch(`/api/data?key=${k}`);
+                if(res.ok) {
+                    allData = await res.json();
                     const grid = document.getElementById('grid');
                     grid.innerHTML = "";
                     for(let name in allData) {
                         const p = allData[name];
                         grid.innerHTML += `
-                            <div class="card" onclick="selectPlayer('${name}')">
+                            <div class="card" onclick="selectAlt('${name}')">
                                 <h3 style="color:var(--neon); margin:0;">${name}</h3>
-                                <div style="font-size:0.75em; color:#555; margin-bottom:12px;">📍 ${p.location || 'Main Map'}</div>
-                                <div class="stat-row"><span>BUCKS</span> <b>${(p.bucks || 0).toLocaleString()}</b></div>
-                                <div class="stat-row"><span>GINGER</span> <b>${(p.gingerbread || 0).toLocaleString()}</b></div>
+                                <div style="font-size:0.75em; color:#555; margin-bottom:12px;">📍 ${p.location || 'Game'}</div>
+                                <div class="stat-row"><span>BUCKS</span> <b>${p.bucks || 0}</b></div>
+                                <div class="stat-row"><span>GINGER</span> <b>${p.gingerbread || 0}</b></div>
                                 <hr style="border:0; border-top:1px solid #1a1a1a; margin:12px 0;">
                                 <div class="stat-row"><span>🔨 HUMBUG</span> <span class="${p.humbug=='READY'?'ready':''}">${p.humbug}</span></div>
                                 <div class="stat-row"><span>🛷 SLEIGH</span> <span class="${p.sleighball=='READY'?'ready':''}">${p.sleighball}</span></div>
                                 <div class="stat-row"><span>⭐ STAR</span> <span class="${p.starcatch=='READY'?'ready':''}">${p.starcatch}</span></div>
                             </div>`;
                     }
-                    if(selected) updateInv();
+                    if(selectedAlt) renderInventory();
                 }
             } catch(e) {}
         }
 
-        function startSync() { setInterval(load, 3000); load(); }
-        checkAuth();
+        function renderInventory() {
+            if(!selectedAlt || !allData[selectedAlt]) return;
+            document.getElementById('inv-user').innerText = "VIEWING: " + selectedAlt;
+            const inv = allData[selectedAlt].inventory || {};
+            const fill = (id, list) => {
+                const el = document.getElementById(id);
+                el.innerHTML = "";
+                Object.values(list || {}).forEach(i => {
+                    el.innerHTML += `<div class="item">${(i.id || "Item").replace(/_/g, " ")}</div>`;
+                });
+            };
+            fill('inv-pets', inv.pets); fill('inv-food', inv.food); fill('inv-gifts', inv.gifts);
+        }
+
+        function startDataSync() { setInterval(fetchStats, 3000); fetchStats(); }
+        
+        // Run on load
+        checkPersistentAuth();
     </script>
 </body>
 </html>
