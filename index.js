@@ -5,22 +5,23 @@ app.use(express.json());
 
 let players = {}; 
 
-// --- PASSCODE LOGIC ---
-// This generates a unique code for the day (e.g., "Code-20251221")
-const getDailyPasscode = () => {
+// --- KEY GENERATION LOGIC ---
+const getRequiredKey = () => {
+    // Generates a code based on Year, Month, and Day (changes every 24 hours)
     const date = new Date().toISOString().slice(0, 10).replace(/-/g, "");
-    return "VIP" + date; // Your passcode today would be VIP20251221
+    // This matches your requirement: "KEY_" + unique daily string
+    return "KEY_" + date + "secure"; 
 };
 
 app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'index.html')));
 
-// Protect the data: Only send if the passcode in the request is correct
+// API protection: Key must match EXACTLY
 app.get('/api/data', (req, res) => {
-    const userCode = req.query.pass;
-    if (userCode === getDailyPasscode()) {
+    const userKey = req.query.key;
+    if (userKey === getRequiredKey()) {
         res.json(players);
     } else {
-        res.status(401).json({ error: "Invalid or Expired Passcode" });
+        res.status(401).json({ error: "Invalid Key. Get a new one from the link." });
     }
 });
 
@@ -38,4 +39,4 @@ app.post('/update', (req, res) => {
     res.sendStatus(200);
 });
 
-app.listen(10000, () => console.log("Secure Tracker Live. Passcode is: " + getDailyPasscode()));
+app.listen(10000, () => console.log("System Protected. Current Key: " + getRequiredKey()));
