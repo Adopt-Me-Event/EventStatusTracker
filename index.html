@@ -61,8 +61,6 @@
             outline: none;
         }
 
-        #key-input:focus { border-color: var(--neon); }
-
         .btn {
             background: var(--neon);
             color: black;
@@ -77,20 +75,12 @@
             text-transform: uppercase;
         }
 
-        .btn:hover {
-            transform: scale(1.05);
-            box-shadow: 0 0 20px rgba(0, 255, 102, 0.4);
-        }
+        .btn:hover { transform: scale(1.05); box-shadow: 0 0 20px rgba(0, 255, 102, 0.4); }
 
         .btn-secondary {
             background: transparent;
             border: 1px solid #444;
             color: #888;
-        }
-
-        .btn-secondary:hover {
-            border-color: var(--neon);
-            color: var(--neon);
         }
 
         /* --- DASHBOARD --- */
@@ -139,17 +129,16 @@
 
         .version-tag { position: fixed; bottom: 15px; left: 20px; font-size: 11px; color: #333; }
         .stat-row { display: flex; justify-content: space-between; margin: 6px 0; font-size: 0.9em; }
-        .ready { color: var(--neon); font-weight: bold; }
+        .ready { color: var(--neon); font-weight: bold; text-shadow: 0 0 5px var(--neon); }
     </style>
 </head>
 <body>
 
     <div id="login-screen">
         <div class="login-box">
-            <h1 style="margin:0; color:var(--neon); letter-spacing: 2px;">EVENTSPLOIT</h1>
+            <h1 style="margin:0; color:var(--neon);">EVENTSPLOIT</h1>
             <p style="color:#555; margin-bottom: 25px;">V1.2.4 PREMIUM HUB</p>
-            
-            <input type="text" id="key-input" placeholder="PASTE KEY FROM LOOTDEST">
+            <input type="text" id="key-input" placeholder="PASTE KEY HERE">
             <br>
             <button class="btn" onclick="tryLogin()">LOGIN</button>
             <button class="btn btn-secondary" onclick="window.open('https://lootdest.org/s?8VGiorkT', '_blank')">GET KEY</button>
@@ -172,7 +161,7 @@
         </div>
 
         <div id="page-inv" style="display:none; width:95%; margin:auto;">
-            <h3 id="inv-user" style="text-align:center; color:var(--neon); margin-bottom:20px;">CHOOSE AN ALT PLAYER</h3>
+            <h3 id="inv-user" style="text-align:center; color:var(--neon); margin-bottom:20px;">CHOOSE AN ALT</h3>
             <div style="display:flex; justify-content:center; gap:25px; flex-wrap:wrap;">
                 <div class="inv-col"><h4>PETS</h4><div id="inv-pets"></div></div>
                 <div class="inv-col"><h4>FOOD</h4><div id="inv-food"></div></div>
@@ -181,25 +170,18 @@
         </div>
     </div>
 
-    <div class="version-tag">VERSION 1.2.4 (STABLE) - LOOTDEST_BUILD_8VGI</div>
+    <div class="version-tag">VERSION 1.2.4 (STABLE)</div>
 
     <script>
-        // --- KEY SYSTEM LOGIC ---
         function checkPersistentAuth() {
-            const key = localStorage.getItem("active_sploit_key");
-            if(key) {
-                initDashboard();
-            }
+            if(localStorage.getItem("active_sploit_key")) { initDashboard(); }
         }
 
         function tryLogin() {
             const input = document.getElementById('key-input').value.trim();
-            // This logic allows any key obtained from your LootDest link
             if(input.length > 4) {
                 localStorage.setItem("active_sploit_key", input);
                 initDashboard();
-            } else {
-                alert("Please enter the key obtained from LootDest.");
             }
         }
 
@@ -214,7 +196,6 @@
             startDataCycle();
         }
 
-        // --- DASHBOARD DATA LOGIC ---
         let currentData = {};
         let activePlayer = "";
 
@@ -244,7 +225,7 @@
                         grid.innerHTML += `
                             <div class="card" onclick="viewPlayer('${name}')">
                                 <h3 style="color:var(--neon); margin:0;">${name}</h3>
-                                <div style="font-size:0.75em; color:#555; margin-bottom:12px;">📍 ${p.location || 'Main Map'}</div>
+                                <div style="font-size:0.75em; color:#555; margin-bottom:12px;">📍 ${p.location || 'Map'}</div>
                                 <div class="stat-row"><span>BUCKS</span> <b>${p.bucks || 0}</b></div>
                                 <div class="stat-row"><span>GINGER</span> <b>${p.gingerbread || 0}</b></div>
                                 <hr style="border:0; border-top:1px solid #1a1a1a; margin:12px 0;">
@@ -273,7 +254,6 @@
         }
 
         function startDataCycle() { setInterval(sync, 3000); sync(); }
-        
         checkPersistentAuth();
     </script>
 </body>
