@@ -1,21 +1,34 @@
-async function updateDashboard() {
-    const res = await fetch('/data');
-    const allPlayers = await res.json();
-    const container = document.getElementById('stats-container');
-    
-    container.innerHTML = ''; // Clear old data
-
-    for (let name in allPlayers) {
-        const p = allPlayers[name];
-        container.innerHTML += `
-            <div class="card">
-                <h2>${name}</h2>
-                <p>Bucks: ${p.bucks.toLocaleString()}</p>
-                <p>Gingerbread: ${p.gingerbread.toLocaleString()}</p>
-                <p>Sleighball: ${p.sleighball}</p>
-                <p>Last Sync: ${p.lastUpdate}</p>
-            </div>
-        `;
-    }
-}
-setInterval(updateDashboard, 1000);
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Multi-Account Tracker</title>
+    <style>
+        body { background: #1a1a1a; color: white; font-family: sans-serif; display: flex; flex-wrap: wrap; gap: 20px; padding: 20px; }
+        .card { border: 2px solid #00ff00; padding: 15px; border-radius: 10px; width: 250px; background: #2a2a2a; }
+        h2 { color: #00ff00; margin-top: 0; }
+    </style>
+</head>
+<body>
+    <div id="container" style="display: contents;"></div>
+    <script>
+        async function update() {
+            const res = await fetch('/api/data');
+            const data = await res.json();
+            const container = document.getElementById('container');
+            container.innerHTML = '';
+            for(let name in data) {
+                const p = data[name];
+                container.innerHTML += `
+                    <div class="card">
+                        <h2>${name}</h2>
+                        <p>Bucks: ${p.bucks.toLocaleString()}</p>
+                        <p>Gingerbread: ${p.gingerbread.toLocaleString()}</p>
+                        <p>Timer: ${p.sleighball}</p>
+                        <small>Last Sync: ${p.lastSeen}</small>
+                    </div>`;
+            }
+        }
+        setInterval(update, 2000);
+    </script>
+</body>
+</html>
