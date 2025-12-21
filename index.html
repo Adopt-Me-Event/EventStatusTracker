@@ -6,63 +6,86 @@
         :root { --neon: #00ffcc; --bg: #0a0a0a; --card-bg: #161616; }
         body { background: var(--bg); color: white; font-family: 'Segoe UI', sans-serif; display: flex; flex-direction: column; align-items: center; padding: 20px; margin: 0; }
         
-        /* Cool Animated Button */
+        /* Rainbow Animation for the Frame */
+        @keyframes rainbowBorder {
+            0% { border-color: #ff0000; box-shadow: 0 0 20px #ff0000; }
+            16% { border-color: #ff8000; box-shadow: 0 0 20px #ff8000; }
+            33% { border-color: #ffff00; box-shadow: 0 0 20px #ffff00; }
+            50% { border-color: #00ff00; box-shadow: 0 0 20px #00ff00; }
+            66% { border-color: #0000ff; box-shadow: 0 0 20px #0000ff; }
+            83% { border-color: #8b00ff; box-shadow: 0 0 20px #8b00ff; }
+            100% { border-color: #ff0000; box-shadow: 0 0 20px #ff0000; }
+        }
+
+        .login-box { 
+            background: var(--card-bg); 
+            padding: 40px; 
+            border-radius: 20px; 
+            border: 5px solid #ff0000; 
+            text-align: center; 
+            margin-top: 80px;
+            animation: rainbowBorder 3s linear infinite;
+            width: 360px;
+        }
+
         .btn {
             background: transparent;
-            color: var(--neon);
+            color: white;
             padding: 12px 30px;
-            border: 2px solid var(--neon);
+            border: 2px solid white;
             border-radius: 8px;
             font-weight: bold;
             cursor: pointer;
-            font-size: 1em;
-            text-transform: uppercase;
-            letter-spacing: 2px;
             transition: all 0.3s ease;
-            position: relative;
-            overflow: hidden;
-            box-shadow: 0 0 5px var(--neon);
+            width: 100%;
+            text-transform: uppercase;
         }
 
         .btn:hover {
-            background: var(--neon);
+            background: white;
             color: black;
-            box-shadow: 0 0 25px var(--neon), 0 0 50px var(--neon);
+            box-shadow: 0 0 20px white;
             transform: scale(1.05);
         }
 
-        .btn:active { transform: scale(0.95); }
-
-        /* Card Pulse for In-Game Players */
-        @keyframes pulse {
-            0% { box-shadow: 0 0 5px #333; }
-            50% { box-shadow: 0 0 20px var(--neon); }
-            100% { box-shadow: 0 0 5px #333; }
+        .loot-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            background: #00ffcc;
+            color: black;
+            padding: 10px 20px;
+            border-radius: 5px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: 0.3s;
         }
 
-        .login-box { background: var(--card-bg); padding: 40px; border-radius: 15px; border: 1px solid #333; text-align: center; margin-top: 100px; }
-        input { background: #000; color: var(--neon); border: 1px solid #333; padding: 12px; width: 300px; margin: 20px 0; border-radius: 5px; outline: none; }
-        input:focus { border-color: var(--neon); }
-        .card { background: var(--card-bg); border: 1px solid #333; padding: 20px; width: 240px; border-radius: 12px; margin: 10px; transition: 0.3s; }
-        .in-game { border-color: var(--neon); animation: pulse 2s infinite; }
-        .nav-link { color: #888; text-decoration: none; font-size: 0.8em; margin-top: 15px; display: block; }
-        .nav-link:hover { color: var(--neon); }
+        .loot-link:hover { transform: translateY(-3px); box-shadow: 0 5px 15px rgba(0,255,204,0.4); }
+
+        input { background: #000; color: white; border: 1px solid #444; padding: 12px; width: 90%; margin: 15px 0; border-radius: 5px; text-align: center; }
+
+        .card { background: var(--card-bg); border: 2px solid #333; padding: 20px; width: 250px; border-radius: 15px; margin: 15px; transition: 0.3s; }
+        .in-game { border-color: #00ffcc; box-shadow: 0 0 15px #00ffcc; }
+        h2 { margin: 0 0 10px 0; color: #00ffcc; border-bottom: 1px solid #333; padding-bottom: 5px; }
+        .stat { display: flex; justify-content: space-between; margin: 8px 0; font-size: 0.95em; }
+        .ready { color: #00ff00; font-weight: bold; }
     </style>
 </head>
 <body>
 
     <div id="auth-screen" class="login-box">
-        <h2 style="color: var(--neon); letter-spacing: 3px;">SYSTEM LOCKED</h2>
+        <h1 style="margin-top:0">ACCESS KEY</h1>
+        <a href="https://lootdest.org/s?8VGiorkT" target="_blank" class="loot-link">GET KEY FROM LOOTDEST</a>
+        <br>
         <input type="text" id="key-input" placeholder="PASTE KEY_ HERE">
         <br>
-        <button class="btn" onclick="saveKey()">Verify Access</button>
-        <a class="nav-link" href="https://lootdest.org/s?8VGiorkT" target="_blank">Get New Daily Key</a>
+        <button class="btn" onclick="saveKey()">UNLOCK TRACKER</button>
     </div>
 
-    <div id="dashboard" style="display:none; width: 100%; max-width: 1200px;">
-        <div style="display: flex; justify-content: space-between; align-items: center; padding: 20px;">
-            <h1 style="color: var(--neon);">LIVE DATA</h1>
-            <button onclick="reset()" style="background:none; border:none; color:#666; cursor:pointer;">Logout</button>
+    <div id="dashboard" style="display:none; width: 100%;">
+        <div style="width:100%; display:flex; justify-content:space-between; padding:20px; box-sizing:border-box;">
+            <h1 style="color:#00ffcc; margin:0">LIVE ACCOUNTS</h1>
+            <button onclick="logout()" style="background:none; border:1px solid #444; color:#666; cursor:pointer; border-radius:5px;">Logout</button>
         </div>
         <div id="grid" style="display:flex; flex-wrap:wrap; justify-content:center;"></div>
     </div>
@@ -76,13 +99,12 @@
             load();
         }
 
-        function reset() { localStorage.removeItem("tracker_key"); location.reload(); }
+        function logout() { localStorage.removeItem("tracker_key"); location.reload(); }
 
         async function load() {
             if (!k) return;
-            try {
-                const r = await fetch(`/api/data?key=${k}`);
-                if (!r.ok) throw new Error();
+            const r = await fetch(`/api/data?key=${k}`);
+            if (r.ok) {
                 const data = await r.json();
                 document.getElementById('auth-screen').style.display = 'none';
                 document.getElementById('dashboard').style.display = 'block';
@@ -92,21 +114,21 @@
                     const p = data[name];
                     grid.innerHTML += `
                         <div class="card ${p.inGame ? 'in-game' : ''}">
-                            <h3 style="margin:0 0 10px 0; color:var(--neon)">${name}</h3>
-                            <p>💰 Bucks: ${p.bucks}</p>
-                            <p>🍪 Gingerbread: ${p.gingerbread}</p>
-                            <hr style="border:0; border-top:1px solid #333">
-                            <p>🔨 Humbug: ${p.humbug}</p>
-                            <p>🛷 Sleighball: ${p.sleighball}</p>
-                            <p>⭐ Starcatch: ${p.starcatch}</p>
+                            <h2>${name}</h2>
+                            <div class="stat"><span>💰 Bucks:</span> <b>${p.bucks.toLocaleString()}</b></div>
+                            <div class="stat"><span>🍪 Ginger:</span> <b>${p.gingerbread.toLocaleString()}</b></div>
+                            <hr style="border:0; border-top:1px solid #333; margin:10px 0;">
+                            <div class="stat"><span>🔨 Humbug:</span> <span class="${p.humbug=='READY'?'ready':''}">${p.humbug}</span></div>
+                            <div class="stat"><span>🛷 Sleighball:</span> <span class="${p.sleighball=='READY'?'ready':''}">${p.sleighball}</span></div>
+                            <div class="stat"><span>⭐ Starcatch:</span> <span class="${p.starcatch=='READY'?'ready':''}">${p.starcatch}</span></div>
+                            <div style="font-size:0.7em; color:#666; margin-top:10px; text-align:right;">Last Sync: ${p.lastSeen}</div>
                         </div>`;
                 }
-            } catch {
+            } else {
                 document.getElementById('auth-screen').style.display = 'block';
                 document.getElementById('dashboard').style.display = 'none';
             }
         }
-
         setInterval(load, 3000);
         if (k) load();
     </script>
