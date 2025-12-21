@@ -9,4 +9,87 @@
         input:focus { border-color: #00ffcc; }
         .btn { background: #00ffcc; color: black; padding: 12px 30px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.3s; }
         .btn:hover { transform: scale(1.05); background: #00cca3; }
-        .card { background: #1e1e1e; border: 1px solid #333; padding: 20px; width: 260px; border
+        .card { background: #1e1e1e; border: 1px solid #333; padding: 20px; width: 260px; border-radius: 12px; margin: 10px; position: relative; }
+        .status-dot { height: 10px; width: 10px; border-radius: 50%; display: inline-block; margin-right: 5px; }
+    </style>
+</head>
+<body>
+
+    <div id="auth-screen" class="auth-card">
+        <h2 style="color: #00ffcc; margin-top: 0;">Access Required</h2>
+        <p style="color: #888;">Visit the link below to get today's key. It changes every 24 hours.</p>
+        <a href="https://lootdest.org/s?8VGiorkT" target="_blank" style="color: #00ffcc; text-decoration: none; font-weight: bold;">[ Get Today's Key ]</a>
+        <br>
+        <input type="text" id="key-field" placeholder="KEY_20251221secure">
+        <br>
+        <button class="btn" onclick="applyKey()">Unlock Dashboard</button>
+        <p id="error-text" style="color: #ff4d4d; margin-top: 15px; font-size: 0.9em;"></p>
+    </div>
+
+    <div id="main-ui" style="display: none; width: 100%;">
+        <div style="display: flex; justify-content: space-between; width: 100%; max-width: 1000px; margin-bottom: 20px;">
+            <h1 style="margin: 0;">Live Tracker</h1>
+            <button onclick="logout()" style="background: none; border: 1px solid #444; color: #888; cursor: pointer; border-radius: 5px; padding: 5px 10px;">Logout / Reset Key</button>
+        </div>
+        <div id="player-grid" style="display: flex; flex-wrap: wrap; justify-content: center; gap: 15px;"></div>
+    </div>
+
+    <script>
+        let key = localStorage.getItem("auth_token");
+
+        function applyKey() {
+            const input = document.getElementById('key-field').value.trim();
+            localStorage.setItem("auth_token", input);
+            key = input;
+            fetchData();
+        }
+
+        function logout() {
+            localStorage.removeItem("auth_token");
+            location.reload();
+        }
+
+        async function fetchData() {
+            if (!key) return;
+            try {
+                const res = await fetch(`/api/data?key=${key}`);
+                if (!res.ok) throw new Error("Unauthorized");
+                
+                const players = await res.json();
+                document.getElementById('auth-screen').style.display = 'none';
+                document.getElementById('main-ui').style.display = 'block';
+                render(players);
+            } catch (err) {
+                document.getElementById('error-text').innerText = "Invalid Key! Make sure you copied the full code.";
+                document.getElementById('auth-screen').style.display = 'block';
+                document.getElementById('main-ui').style.display = 'none';
+            }
+        }
+
+        function render(data) {
+            const grid = document.getElementById('player-grid');
+            grid.innerHTML = '';
+            for (let name in data) {
+                const p = data[name];
+                grid.innerHTML += `
+                    <div class="card" style="border-color: ${p.inGame ? '#00ffcc' : '#333'}">
+                        <h3 style="margin: 0 0 15px 0;">${name}</h3>
+                        <p>💰 Bucks: ${p.bucks.toLocaleString()}</p>
+                        <p>🍪 Gingerbread: ${p.gingerbread.toLocaleString()}</p>
+                        <hr style="border: 0; border-top: 1px solid #333; margin: 15px 0;">
+                        <p>🔨 Humbug: ${p.humbug}</p>
+                        <p>🛷 Sleighball: ${p.sleighball}</p>
+                        <p>⭐ Starcatch: ${p.starcatch}</p>
+                        <div style="margin-top: 15px; font-size: 0.8em; color: #888;">
+                            <span class="status-dot" style="background: ${p.inGame ? '#00ff00' : '#444'}"></span>
+                            ${p.inGame ? 'Playing Minigame' : 'Idle / Waiting'}
+                        </div>
+                    </div>`;
+            }
+        }
+
+        setInterval(fetchData, 3000);
+        if (key) fetchData();
+    </script>
+</body>
+</html>
