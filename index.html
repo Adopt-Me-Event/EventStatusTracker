@@ -29,7 +29,7 @@
             min-height: 100vh;
         }
 
-        /* --- CLEAN LOGIN SCREEN --- */
+        /* --- LOGIN SCREEN --- */
         #login-screen {
             display: flex;
             flex-direction: column;
@@ -45,10 +45,11 @@
             border-radius: 12px;
             text-align: center;
             border: 1px solid var(--border);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            box-shadow: 0 10px 40px rgba(0,0,0,0.7);
+            width: 350px;
         }
 
-        /* --- BUTTONS --- */
+        /* --- BUTTON ANIMATIONS --- */
         .btn {
             background: var(--neon);
             color: black;
@@ -57,13 +58,16 @@
             border-radius: 6px;
             font-weight: bold;
             cursor: pointer;
-            transition: 0.2s;
-            margin: 5px;
+            transition: all 0.3s ease;
+            margin: 8px;
+            width: 80%;
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
 
         .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 0 15px rgba(0, 255, 102, 0.4);
+            transform: scale(1.05);
+            box-shadow: 0 0 20px rgba(0, 255, 102, 0.5);
         }
 
         .btn-secondary {
@@ -90,7 +94,6 @@
             margin: 0 auto;
         }
 
-        /* Rainbow only appears on hover */
         .card { 
             background: var(--card); 
             border: 1px solid var(--border); 
@@ -103,7 +106,7 @@
         }
 
         .card:hover {
-            transform: scale(1.02);
+            transform: translateY(-5px);
             border-color: transparent;
         }
 
@@ -118,15 +121,14 @@
             animation: rainbow-border 3s linear infinite;
         }
 
-        /* --- TABS --- */
         .tab-bar { display: flex; gap: 10px; margin: 25px auto; background: #151515; padding: 8px; border-radius: 8px; width: fit-content; }
         .tab { padding: 10px 25px; cursor: pointer; border-radius: 5px; color: #666; font-weight: bold; transition: 0.3s; }
-        .tab.active { background: var(--neon); color: black; }
+        .tab.active { background: var(--neon); color: black; box-shadow: 0 0 10px var(--neon); }
 
         .inv-col { background: #0f0f0f; padding: 15px; border-radius: 10px; width: 320px; border: 1px solid var(--border); height: 550px; overflow-y: auto; }
         .item { background: #1a1a1a; padding: 10px; margin: 8px 0; border-left: 3px solid var(--neon); font-size: 0.85em; color: #ccc; }
 
-        .version { position: fixed; bottom: 15px; right: 20px; font-size: 11px; color: #333; letter-spacing: 1px; }
+        .version { position: fixed; bottom: 15px; left: 20px; font-size: 11px; color: #333; letter-spacing: 1px; }
         .stat-row { display: flex; justify-content: space-between; margin: 6px 0; font-size: 0.9em; }
         .ready { color: var(--neon); font-weight: bold; text-shadow: 0 0 5px var(--neon); }
     </style>
@@ -136,18 +138,20 @@
     <div id="login-screen">
         <div class="login-box">
             <h1 style="margin:0; color:var(--neon); letter-spacing: 2px;">EVENTSPLOIT</h1>
-            <p style="color:#555; margin-bottom: 25px;">v1.2.4 Tracker Interface</p>
-            <input type="text" id="key-input" style="background:#000; border:1px solid #333; color:white; padding:12px; border-radius:6px; width:280px; margin-bottom:20px; text-align:center;" placeholder="PASTE ACCESS KEY">
+            <p style="color:#555; margin-bottom: 25px;">V1.2.4 | AUTHENTICATION</p>
+            
+            <input type="text" id="key-input" style="background:#000; border:1px solid #333; color:white; padding:12px; border-radius:6px; width:85%; margin-bottom:20px; text-align:center; outline:none;" placeholder="PASTE KEY HERE">
+            
             <br>
             <button class="btn" onclick="login()">LOGIN</button>
-            <button class="btn btn-secondary" onclick="window.open('https://your-key-link.com')">GET KEY</button>
+            <button class="btn btn-secondary" onclick="window.open('https://lootdest.org/s?8VGiorkT', '_blank')">GET KEY</button>
         </div>
     </div>
 
     <div id="dashboard">
         <div class="header">
             <h2 style="color:var(--neon); margin:0; font-size: 1.2em;">DASHBOARD <span style="color:white; font-weight:normal;">| MAIN</span></h2>
-            <button class="btn" style="background:#ff3333; color:white; padding: 8px 15px;" onclick="logout()">LOGOUT</button>
+            <button class="btn" style="background:#ff3333; color:white; width:auto; padding: 8px 15px;" onclick="logout()">LOGOUT</button>
         </div>
 
         <div class="tab-bar">
@@ -160,25 +164,16 @@
         </div>
 
         <div id="page-inv" class="page" style="display:none; width:95%; margin:auto;">
-            <h3 id="inv-user" style="text-align:center; color:var(--neon); margin-bottom:20px;">CHOOSE AN ALT</h3>
+            <h3 id="inv-user" style="text-align:center; color:var(--neon); margin-bottom:20px;">SELECT AN ALT PLAYER</h3>
             <div style="display:flex; justify-content:center; gap:25px; flex-wrap:wrap;">
-                <div class="inv-col">
-                    <h4 style="border-bottom:1px solid #222; padding-bottom:10px; text-align:center;">PETS</h4>
-                    <div id="inv-pets"></div>
-                </div>
-                <div class="inv-col">
-                    <h4 style="border-bottom:1px solid #222; padding-bottom:10px; text-align:center;">FOOD</h4>
-                    <div id="inv-food"></div>
-                </div>
-                <div class="inv-col">
-                    <h4 style="border-bottom:1px solid #222; padding-bottom:10px; text-align:center;">GIFTS</h4>
-                    <div id="inv-gifts"></div>
-                </div>
+                <div class="inv-col"><h4>PETS</h4><div id="inv-pets"></div></div>
+                <div class="inv-col"><h4>FOOD</h4><div id="inv-food"></div></div>
+                <div class="inv-col"><h4>GIFTS</h4><div id="inv-gifts"></div></div>
             </div>
         </div>
     </div>
 
-    <div class="version">VERSION 1.2.4 (STABLE)</div>
+    <div class="version">VERSION 1.2.4 (STABLE) BUILD 8VGI</div>
 
     <script>
         let allData = {};
@@ -198,6 +193,8 @@
             if(k.length > 5) {
                 localStorage.setItem("tracker_key", k);
                 location.reload();
+            } else {
+                alert("Invalid Key! Please use the 'Get Key' button.");
             }
         }
 
@@ -250,7 +247,7 @@
                         const p = allData[name];
                         grid.innerHTML += `
                             <div class="card" onclick="selectPlayer('${name}')">
-                                <h3 style="color:var(--neon); margin:0; font-size:1.1em;">${name}</h3>
+                                <h3 style="color:var(--neon); margin:0;">${name}</h3>
                                 <div style="font-size:0.75em; color:#555; margin-bottom:12px;">📍 ${p.location || 'Main Map'}</div>
                                 <div class="stat-row"><span>BUCKS</span> <b>${(p.bucks || 0).toLocaleString()}</b></div>
                                 <div class="stat-row"><span>GINGER</span> <b>${(p.gingerbread || 0).toLocaleString()}</b></div>
