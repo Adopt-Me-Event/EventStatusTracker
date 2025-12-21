@@ -3,90 +3,65 @@
 <head>
     <title>Adopt Me Tracker Pro</title>
     <style>
-        :root { --neon: #00ffcc; --bg: #0a0a0a; --card-bg: #161616; }
-        body { background: var(--bg); color: white; font-family: 'Segoe UI', sans-serif; display: flex; flex-direction: column; align-items: center; padding: 20px; margin: 0; }
-        
-        /* Rainbow Animation for the Frame */
-        @keyframes rainbowBorder {
-            0% { border-color: #ff0000; box-shadow: 0 0 20px #ff0000; }
-            16% { border-color: #ff8000; box-shadow: 0 0 20px #ff8000; }
-            33% { border-color: #ffff00; box-shadow: 0 0 20px #ffff00; }
-            50% { border-color: #00ff00; box-shadow: 0 0 20px #00ff00; }
-            66% { border-color: #0000ff; box-shadow: 0 0 20px #0000ff; }
-            83% { border-color: #8b00ff; box-shadow: 0 0 20px #8b00ff; }
-            100% { border-color: #ff0000; box-shadow: 0 0 20px #ff0000; }
-        }
+        :root { --neon: #00ffcc; --bg: #0a0a0a; --card-bg: #161616; --rainbow: conic-gradient(#ff0000, #ff8000, #ffff00, #00ff00, #00ffff, #0000ff, #8b00ff, #ff0000); }
+        body { background: var(--bg); color: white; font-family: 'Segoe UI', sans-serif; display: flex; flex-direction: column; align-items: center; padding: 20px; margin: 0; min-height: 100vh; }
 
-        .login-box { 
-            background: var(--card-bg); 
-            padding: 40px; 
-            border-radius: 20px; 
-            border: 5px solid #ff0000; 
-            text-align: center; 
-            margin-top: 80px;
-            animation: rainbowBorder 3s linear infinite;
-            width: 360px;
-        }
+        /* Rainbow Frame */
+        .rainbow-container { position: relative; padding: 4px; border-radius: 20px; overflow: hidden; margin-top: 80px; width: 380px; display: flex; justify-content: center; align-items: center; }
+        .rainbow-container::before { content: ''; position: absolute; width: 150%; height: 150%; background: var(--rainbow); animation: spin 3s linear infinite; }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
 
-        .btn {
-            background: transparent;
-            color: white;
-            padding: 12px 30px;
-            border: 2px solid white;
-            border-radius: 8px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            width: 100%;
-            text-transform: uppercase;
-        }
+        .login-box { position: relative; background: var(--card-bg); padding: 40px; border-radius: 16px; text-align: center; width: 100%; z-index: 1; }
 
-        .btn:hover {
-            background: white;
-            color: black;
-            box-shadow: 0 0 20px white;
-            transform: scale(1.05);
+        /* Premium Buttons */
+        .cool-btn {
+            background: transparent; color: white; padding: 12px 25px; border: 2px solid white; border-radius: 8px; font-weight: bold; cursor: pointer; 
+            transition: all 0.3s ease; text-transform: uppercase; letter-spacing: 1px; outline: none;
         }
-
-        .loot-link {
-            display: inline-block;
-            margin-bottom: 20px;
-            background: #00ffcc;
-            color: black;
-            padding: 10px 20px;
-            border-radius: 5px;
-            text-decoration: none;
-            font-weight: bold;
-            transition: 0.3s;
-        }
-
-        .loot-link:hover { transform: translateY(-3px); box-shadow: 0 5px 15px rgba(0,255,204,0.4); }
+        .cool-btn:hover { background: white; color: black; box-shadow: 0 0 20px white; transform: scale(1.05); }
+        .loot-btn { background: var(--neon); color: black; border-color: var(--neon); margin-bottom: 25px; }
+        .loot-btn:hover { background: var(--neon); box-shadow: 0 0 25px var(--neon); }
 
         input { background: #000; color: white; border: 1px solid #444; padding: 12px; width: 90%; margin: 15px 0; border-radius: 5px; text-align: center; }
 
-        .card { background: var(--card-bg); border: 2px solid #333; padding: 20px; width: 250px; border-radius: 15px; margin: 15px; transition: 0.3s; }
-        .in-game { border-color: #00ffcc; box-shadow: 0 0 15px #00ffcc; }
-        h2 { margin: 0 0 10px 0; color: #00ffcc; border-bottom: 1px solid #333; padding-bottom: 5px; }
-        .stat { display: flex; justify-content: space-between; margin: 8px 0; font-size: 0.95em; }
-        .ready { color: #00ff00; font-weight: bold; }
+        /* Dashboard Tabs */
+        .tab-bar { display: flex; gap: 10px; margin-bottom: 20px; width: 100%; max-width: 1000px; }
+        .tab { padding: 10px 20px; background: #1a1a1a; border: 1px solid #333; border-radius: 8px; cursor: pointer; color: #888; transition: 0.3s; }
+        .tab.active { background: var(--neon); color: black; border-color: var(--neon); font-weight: bold; }
+        .tab:hover:not(.active) { color: white; border-color: var(--neon); }
+
+        /* Cards */
+        .card { background: var(--card-bg); border: 2px solid #333; padding: 20px; width: 260px; border-radius: 15px; margin: 10px; transition: 0.3s; }
+        .in-game { border-color: var(--neon); box-shadow: 0 0 15px var(--neon); }
+        h2 { margin: 0 0 10px 0; color: var(--neon); border-bottom: 1px solid #333; padding-bottom: 8px; }
+        .stat-row { display: flex; justify-content: space-between; margin: 10px 0; font-size: 1.05em; }
+        .ready { color: #00ff00; font-weight: bold; text-shadow: 0 0 5px #00ff00; }
     </style>
 </head>
 <body>
 
-    <div id="auth-screen" class="login-box">
-        <h1 style="margin-top:0">ACCESS KEY</h1>
-        <a href="https://lootdest.org/s?8VGiorkT" target="_blank" class="loot-link">GET KEY FROM LOOTDEST</a>
-        <br>
-        <input type="text" id="key-input" placeholder="PASTE KEY_ HERE">
-        <br>
-        <button class="btn" onclick="saveKey()">UNLOCK TRACKER</button>
+    <div id="auth-screen" class="rainbow-container">
+        <div class="login-box">
+            <h1 style="margin-top:0;">SECURE ACCESS</h1>
+            <a href="https://lootdest.org/s?8VGiorkT" target="_blank" class="cool-btn loot-btn">GET KEY</a>
+            <input type="text" id="key-input" placeholder="PASTE KEY_ HERE">
+            <button class="cool-btn" style="width:100%" onclick="saveKey()">Unlock</button>
+        </div>
     </div>
 
-    <div id="dashboard" style="display:none; width: 100%;">
-        <div style="width:100%; display:flex; justify-content:space-between; padding:20px; box-sizing:border-box;">
-            <h1 style="color:#00ffcc; margin:0">LIVE ACCOUNTS</h1>
-            <button onclick="logout()" style="background:none; border:1px solid #444; color:#666; cursor:pointer; border-radius:5px;">Logout</button>
+    <div id="dashboard" style="display:none; width: 100%; max-width: 1200px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; padding:20px 0;">
+            <h1 style="color:var(--neon); margin:0;">ADOPT ME HUB</h1>
+            <button class="cool-btn" style="padding: 8px 15px; font-size: 0.7em;" onclick="logout()">Logout / New Key</button>
         </div>
+
+        <div class="tab-bar">
+            <div class="tab active" onclick="switchTab('alts')">ALT TRACKER</div>
+            <div class="tab" onclick="alert('Coming Soon: Trade Logs')">TRADE LOGS</div>
+            <div class="tab" onclick="alert('Coming Soon: Inventory')">INVENTORY</div>
+            <div class="tab" onclick="alert('Coming Soon: Global Stats')">GLOBAL STATS</div>
+        </div>
+
         <div id="grid" style="display:flex; flex-wrap:wrap; justify-content:center;"></div>
     </div>
 
@@ -103,33 +78,38 @@
 
         async function load() {
             if (!k) return;
-            const r = await fetch(`/api/data?key=${k}`);
-            if (r.ok) {
+            try {
+                const r = await fetch(`/api/data?key=${k}`);
+                if (!r.ok) throw Error();
                 const data = await r.json();
+                
                 document.getElementById('auth-screen').style.display = 'none';
                 document.getElementById('dashboard').style.display = 'block';
+                
                 const grid = document.getElementById('grid');
-                grid.innerHTML = '';
+                grid.innerHTML = ''; 
+
                 for (let name in data) {
                     const p = data[name];
                     grid.innerHTML += `
                         <div class="card ${p.inGame ? 'in-game' : ''}">
                             <h2>${name}</h2>
-                            <div class="stat"><span>💰 Bucks:</span> <b>${p.bucks.toLocaleString()}</b></div>
-                            <div class="stat"><span>🍪 Ginger:</span> <b>${p.gingerbread.toLocaleString()}</b></div>
-                            <hr style="border:0; border-top:1px solid #333; margin:10px 0;">
-                            <div class="stat"><span>🔨 Humbug:</span> <span class="${p.humbug=='READY'?'ready':''}">${p.humbug}</span></div>
-                            <div class="stat"><span>🛷 Sleighball:</span> <span class="${p.sleighball=='READY'?'ready':''}">${p.sleighball}</span></div>
-                            <div class="stat"><span>⭐ Starcatch:</span> <span class="${p.starcatch=='READY'?'ready':''}">${p.starcatch}</span></div>
-                            <div style="font-size:0.7em; color:#666; margin-top:10px; text-align:right;">Last Sync: ${p.lastSeen}</div>
+                            <div class="stat-row"><span>💰 Bucks:</span> <b id="${name}-bucks">${Number(p.bucks).toLocaleString()}</b></div>
+                            <div class="stat-row"><span>🍪 Ginger:</span> <b id="${name}-ginger">${Number(p.gingerbread).toLocaleString()}</b></div>
+                            <hr style="border:0; border-top:1px solid #333; margin:15px 0;">
+                            <div class="stat-row"><span>🔨 Humbug:</span> <span class="${p.humbug=='READY'?'ready':''}">${p.humbug}</span></div>
+                            <div class="stat-row"><span>🛷 Sleigh:</span> <span class="${p.sleighball=='READY'?'ready':''}">${p.sleighball}</span></div>
+                            <div class="stat-row"><span>⭐ Star:</span> <span class="${p.starcatch=='READY'?'ready':''}">${p.starcatch}</span></div>
                         </div>`;
                 }
-            } else {
-                document.getElementById('auth-screen').style.display = 'block';
+            } catch {
+                document.getElementById('auth-screen').style.display = 'flex';
                 document.getElementById('dashboard').style.display = 'none';
             }
         }
-        setInterval(load, 3000);
+
+        // Set to 2 seconds for faster updates
+        setInterval(load, 2000);
         if (k) load();
     </script>
 </body>
