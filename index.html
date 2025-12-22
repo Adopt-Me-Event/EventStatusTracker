@@ -8,26 +8,21 @@
         body { background: var(--bg); color: white; font-family: 'Segoe UI', sans-serif; margin: 0; }
         .header { padding: 15px 30px; background: #000; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; }
         .rig-counter { background: #1a1a1a; padding: 10px 20px; border-radius: 8px; border: 1px solid var(--neon); color: var(--neon); font-weight: bold; }
-        
         .tab-bar { display: flex; justify-content: center; gap: 10px; margin: 20px 0; }
         .tab { padding: 10px 25px; cursor: pointer; background: #151515; border-radius: 6px; color: #666; font-weight: bold; border: none; }
         .tab.active { background: var(--neon); color: black; box-shadow: 0 0 15px var(--neon); }
-
         #grid { display: flex; flex-wrap: wrap; justify-content: center; gap: 15px; padding: 10px; }
-        .card { background: var(--card); border: 1px solid var(--border); padding: 18px; border-radius: 12px; width: 310px; position: relative; cursor: pointer; }
+        .card { background: var(--card); border: 1px solid var(--border); padding: 18px; border-radius: 12px; width: 310px; position: relative; border: 1px solid #222; cursor: pointer; }
         .remove-btn { position: absolute; top: 10px; right: 10px; background: #222; color: #cc4444; border: 1px solid #333; border-radius: 4px; padding: 2px 6px; cursor: pointer; font-size: 10px; }
-        
         .stat-row { display: flex; justify-content: space-between; margin: 5px 0; font-size: 0.9em; }
         .mg-box { background: #000; padding: 10px; border-radius: 8px; margin-top: 10px; border: 1px solid #222; }
         
-        /* 3-Column Inventory Layout */
+        /* Triple Column Inventory */
         #page-inv { display: none; padding: 20px; text-align: center; }
         .inv-wrapper { display: flex; justify-content: center; gap: 15px; flex-wrap: nowrap; overflow-x: auto; padding-bottom: 20px; }
         .inv-col { background: #0f0f0f; border: 1px solid #222; padding: 15px; border-radius: 12px; width: 320px; min-width: 300px; height: 650px; overflow-y: auto; }
-        
         .col-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #333; padding-bottom: 10px; margin-bottom: 15px; position: sticky; top: 0; background: #0f0f0f; z-index: 10; }
         .total-badge { background: var(--neon); color: black; padding: 2px 10px; border-radius: 20px; font-weight: bold; font-size: 0.85em; }
-        
         .item-row { background: #1a1a1a; padding: 10px; margin: 6px 0; border-left: 4px solid var(--neon); display: flex; justify-content: space-between; align-items: center; border-radius: 4px; text-align: left; }
         .qty-label { background: #222; color: var(--neon); padding: 2px 8px; border-radius: 4px; font-weight: bold; font-family: monospace; border: 1px solid #333; font-size: 0.85em; }
     </style>
@@ -98,20 +93,21 @@
                         <div class="card" onclick="selectedPlayer='${name}'; updateInvUI(); showPage('inv');">
                             <button class="remove-btn" onclick="event.stopPropagation(); hiddenPlayers.add('${name}'); sync();">×</button>
                             <h3 style="color:var(--neon); margin:0;">${name}</h3>
-                            <div style="font-size:0.75em; color:#666; margin-bottom:5px;">📍 ${p.location}</div>
-                            <div class="stat-row"><span>BUCKS</span> <b>${p.bucks.toLocaleString()}</b></div>
-                            <div class="stat-row"><span>GINGER</span> <b>${p.gingerbread.toLocaleString()}</b></div>
+                            <div style="font-size:0.7em; color:#555; margin-bottom:5px;">📍 ${p.location}</div>
+                            <div class="stat-row"><span>BUCKS / GINGER</span> <b>${p.bucks.toLocaleString()} / ${p.gingerbread.toLocaleString()}</b></div>
                             <div class="stat-row" style="color:var(--advent)"><span>📅 ADVENT</span> <b>${formatTime(p.advent_raw)}</b></div>
                             
                             <div class="mg-box" style="border-left-color:#0088ff; opacity:${p.minigame.active?1:0.3}">
                                 <div class="stat-row"><span style="color:#0088ff; font-weight:bold;">${p.minigame.title}</span> <b>${p.minigame.timer}</b></div>
+                                <div class="stat-row" style="font-size:0.8em; color:#555;"><span>Score</span> <b>${p.minigame.score}</b></div>
                             </div>
 
                             <div class="mg-box" style="border-left-color:#ff4444; opacity:${p.humbugHunt.active?1:0.3}">
                                 <div class="stat-row"><span style="color:#ff4444; font-weight:bold;">HUMBUG HUNT</span> <b>${p.humbugHunt.timer}</b></div>
+                                <div class="stat-row" style="font-size:0.8em; color:#555;"><span>Left</span> <b>${p.humbugHunt.left}</b></div>
                             </div>
 
-                            <div class="stat-row" style="margin-top:12px;"><span>🔨 HUMBUG</span> <b>${formatTime(p.humbug_raw)}</b></div>
+                            <div class="stat-row" style="margin-top:10px;"><span>🔨 HUMBUG</span> <b>${formatTime(p.humbug_raw)}</b></div>
                             <div class="stat-row"><span>🛷 SLEIGH</span> <b>${formatTime(p.sleigh_raw)}</b></div>
                             <div class="stat-row"><span>⭐ STAR</span> <b>${formatTime(p.star_raw)}</b></div>
                         </div>`;
