@@ -15,9 +15,9 @@
         #grid { display: flex; flex-wrap: wrap; justify-content: center; gap: 15px; padding: 10px; }
         .card { background: var(--card); border: 1px solid var(--border); padding: 18px; border-radius: 12px; width: 310px; cursor: pointer; }
         .stat-row { display: flex; justify-content: space-between; margin: 5px 0; font-size: 0.9em; }
+        .loc-tag { font-size: 0.7em; color: #555; margin-bottom: 8px; font-weight: bold; text-transform: uppercase; }
         .ready { color: var(--neon); font-weight: bold; }
         .mg-section { background: #000; padding: 10px; border-radius: 6px; margin-top: 10px; border: 1px solid #333; }
-        .timer-urgent { color: var(--danger); font-weight: bold; }
         .inv-col { background: #0f0f0f; border: 1px solid #222; padding: 15px; border-radius: 10px; width: 300px; height: 500px; overflow-y: auto; display: inline-block; margin: 10px; vertical-align: top; }
         .item-row { background: #1a1a1a; padding: 8px; margin: 5px 0; border-left: 3px solid var(--neon); text-align: left; font-size: 0.85em; }
     </style>
@@ -30,14 +30,14 @@
     </div>
 
     <div class="tab-bar">
-        <button class="tab active" id="btn-alts" onclick="showPage('alts')">TRACKER</button>
-        <button class="tab" id="btn-inv" onclick="showPage('inv')">INVENTORY</button>
+        <button class="tab active" onclick="showPage('alts')">TRACKER</button>
+        <button class="tab" onclick="showPage('inv')">INVENTORY</button>
     </div>
 
     <div id="page-alts"><div id="grid"></div></div>
 
     <div id="page-inv" style="display:none; text-align:center;">
-        <h3 id="inv-target" style="color:var(--neon)">Inventory View</h3>
+        <h3 id="inv-target" style="color:var(--neon)">Inventory</h3>
         <div class="inv-col"><h4>PETS</h4><div id="inv-pets"></div></div>
         <div class="inv-col"><h4>ITEMS</h4><div id="inv-misc"></div></div>
     </div>
@@ -49,11 +49,8 @@
         function showPage(p) {
             document.getElementById('page-alts').style.display = p === 'alts' ? 'block' : 'none';
             document.getElementById('page-inv').style.display = p === 'inv' ? 'block' : 'none';
-            document.getElementById('btn-alts').classList.toggle('active', p === 'alts');
-            document.getElementById('btn-inv').classList.toggle('active', p === 'inv');
         }
 
-        // Logic for high-speed "Juicy" timers
         function formatTime(seconds) {
             if (!seconds || seconds <= 0) return "READY";
             let h = Math.floor(seconds / 3600), m = Math.floor((seconds % 3600) / 60), s = Math.floor(seconds % 60);
@@ -70,25 +67,27 @@
                 
                 for(let name in players) {
                     const p = players[name];
-                    const mg = p.minigame || {active:false, timer:"0:00"};
-                    const hh = p.humbugHunt || {active:false, timer:"0:00"};
+                    const mg = p.minigame || {active:false};
+                    const hh = p.humbugHunt || {active:false};
                     if(p.rigCount > maxRigs) maxRigs = p.rigCount;
 
                     html += `
                         <div class="card" onclick="selectedPlayer='${name}'; updateInvUI(); showPage('inv');">
                             <h3 style="color:var(--neon); margin:0;">${name}</h3>
+                            <div class="loc-tag">📍 ${p.location}</div>
+                            
                             <div class="stat-row"><span>BUCKS</span> <b>${p.bucks.toLocaleString()}</b></div>
                             <div class="stat-row"><span>GINGER</span> <b>${p.gingerbread.toLocaleString()}</b></div>
                             <div class="stat-row" style="color:var(--advent)"><span>📅 ADVENT</span> <b>${formatTime(p.advent_raw)}</b></div>
                             
                             <div class="mg-section" style="border-left-color:#0088ff; opacity:${mg.active?1:0.3}">
-                                <div class="stat-row"><span style="color:#0088ff; font-size:0.8em; font-weight:bold;">${mg.title}</span></div>
+                                <div class="stat-row"><span style="color:#0088ff; font-weight:bold;">${mg.title}</span></div>
                                 <div class="stat-row"><span>Timer</span> <b>${mg.timer}</b></div>
                                 <div class="stat-row"><span>Score</span> <b>${mg.score}</b></div>
                             </div>
 
                             <div class="mg-section" style="border-left-color:#ff4444; opacity:${hh.active?1:0.3}">
-                                <div class="stat-row"><span style="color:#ff4444; font-size:0.8em; font-weight:bold;">HUMBUG HUNT</span></div>
+                                <div class="stat-row"><span style="color:#ff4444; font-weight:bold;">HUMBUG HUNT</span></div>
                                 <div class="stat-row"><span>Timer</span> <b>${hh.timer}</b></div>
                                 <div class="stat-row"><span>Left</span> <b>${hh.left}</b></div>
                             </div>
