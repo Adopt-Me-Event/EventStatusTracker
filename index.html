@@ -3,220 +3,78 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EventSploit v1.2.4 | Winter Tracker</title>
+    <title>EventSploit v1.2.4</title>
     <style>
-        :root { 
-            --neon: #00ff66; 
-            --bg: #0a0a0a; 
-            --card: #111; 
-            --border: #222;
-            --advent: #ffcc00;
-        }
-
-        @keyframes rainbow-border {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
-        }
-
-        body { 
-            background: var(--bg); 
-            color: white; 
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
-            margin: 0; 
-            display: flex; 
-            flex-direction: column; 
-            align-items: center; 
-            min-height: 100vh;
-        }
-
-        /* --- DASHBOARD LAYOUT --- */
+        :root { --neon: #00ff66; --bg: #0a0a0a; --card: #111; --border: #222; --advent: #ffcc00; }
+        body { background: var(--bg); color: white; font-family: 'Segoe UI', sans-serif; margin: 0; display: flex; flex-direction: column; align-items: center; }
         #dashboard { width: 100%; }
-        
-        .header {
-            padding: 20px;
-            width: 90%;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 1px solid var(--border);
-            margin: 0 auto;
-        }
-
-        .btn {
-            background: var(--neon);
-            color: black;
-            padding: 10px 20px;
-            border: none;
-            border-radius: 6px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: 0.3s;
-            text-transform: uppercase;
-        }
-
-        .card { 
-            background: var(--card); 
-            border: 1px solid var(--border); 
-            padding: 18px; 
-            border-radius: 12px; 
-            width: 280px; 
-            transition: 0.3s;
-            position: relative;
-            cursor: pointer;
-        }
-
-        .card:hover { transform: translateY(-5px); }
-
-        .card:hover::after {
-            content: '';
-            position: absolute;
-            top: -1px; left: -1px; right: -1px; bottom: -1px;
-            background: linear-gradient(45deg, #ff0000, #ff7300, #fffb00, #48ff00, #00ffd5, #002bff, #7a00ff);
-            background-size: 400%;
-            z-index: -1;
-            border-radius: 13px;
-            animation: rainbow-border 3s linear infinite;
-        }
-
-        /* --- UI COMPONENTS --- */
-        .tab-bar { display: flex; gap: 10px; margin: 25px auto; background: #151515; padding: 8px; border-radius: 8px; width: fit-content; }
-        .tab { padding: 10px 25px; cursor: pointer; border-radius: 5px; color: #666; font-weight: bold; }
-        .tab.active { background: var(--neon); color: black; box-shadow: 0 0 10px var(--neon); }
-
-        .stat-row { display: flex; justify-content: space-between; margin: 6px 0; font-size: 0.9em; }
-        .ready { color: var(--neon); font-weight: bold; text-shadow: 0 0 5px var(--neon); }
-        
-        .minigame-box {
-            background: #000;
-            padding: 10px;
-            border-radius: 6px;
-            margin-top: 12px;
-            border: 1px solid #222;
-        }
-
-        .inv-col { background: #0f0f0f; padding: 15px; border-radius: 10px; width: 320px; border: 1px solid var(--border); height: 500px; overflow-y: auto; }
-        .item { background: #1a1a1a; padding: 10px; margin: 8px 0; border-left: 3px solid var(--neon); font-size: 0.85em; }
-
-        .version-tag { position: fixed; bottom: 15px; left: 20px; font-size: 11px; color: #333; }
+        .header { padding: 20px; width: 90%; display: flex; justify-content: space-between; border-bottom: 1px solid var(--border); margin: 0 auto; }
+        .card { background: var(--card); border: 1px solid var(--border); padding: 18px; border-radius: 12px; width: 280px; position: relative; margin: 10px; }
+        .stat-row { display: flex; justify-content: space-between; margin: 5px 0; font-size: 0.9em; }
+        .ready { color: var(--neon); font-weight: bold; }
+        .mg-box { background: #000; padding: 10px; border-radius: 6px; margin-top: 10px; border: 1px solid #333; }
+        .tab-bar { display: flex; gap: 10px; margin: 20px auto; }
+        .tab { padding: 10px 20px; cursor: pointer; background: #151515; border-radius: 5px; color: #666; }
+        .tab.active { background: var(--neon); color: black; font-weight: bold; }
     </style>
 </head>
 <body>
-
     <div id="dashboard">
         <div class="header">
             <h2 style="color:var(--neon); margin:0;">DASHBOARD <span style="color:white; font-weight:normal;">/ WINTER 2025</span></h2>
-            <div style="font-size: 11px; color: #555; text-align: right;">
-                AUTO-SYNC: <span style="color:var(--neon)">ACTIVE</span><br>
-                REFRESH: 3s
-            </div>
         </div>
-
         <div class="tab-bar">
             <div class="tab active" id="t-alts" onclick="switchTab('alts')">TRACKER</div>
             <div class="tab" id="t-inv" onclick="switchTab('inv')">INVENTORY</div>
         </div>
-
-        <div id="page-alts" style="display:flex; flex-wrap:wrap; justify-content:center; gap:20px; width:95%; margin:auto;">
-            <div id="grid" style="display:flex; flex-wrap:wrap; justify-content:center; gap:20px;"></div>
-        </div>
-
-        <div id="page-inv" style="display:none; width:95%; margin:auto;">
-            <h3 id="inv-user" style="text-align:center; color:var(--neon); margin-bottom:20px;">SELECT A PLAYER CARD</h3>
-            <div style="display:flex; justify-content:center; gap:25px; flex-wrap:wrap;">
-                <div class="inv-col"><h4>PETS</h4><div id="inv-pets"></div></div>
-                <div class="inv-col"><h4>FOOD</h4><div id="inv-food"></div></div>
-                <div class="inv-col"><h4>GIFTS</h4><div id="inv-gifts"></div></div>
-            </div>
+        <div id="page-alts" style="display:flex; flex-wrap:wrap; justify-content:center; width:95%; margin:auto;">
+            <div id="grid" style="display:flex; flex-wrap:wrap; justify-content:center;"></div>
         </div>
     </div>
 
-    <div class="version-tag">STABLE BUILD v1.2.4</div>
-
     <script>
         let currentData = {};
-        let activePlayer = "";
 
-        function switchTab(t) {
-            document.getElementById('page-alts').style.display = t === 'alts' ? 'flex' : 'none';
-            document.getElementById('page-inv').style.display = t === 'inv' ? 'block' : 'none';
-            document.getElementById('t-alts').classList.toggle('active', t === 'alts');
-            document.getElementById('t-inv').classList.toggle('active', t === 'inv');
-        }
-
-        function viewPlayer(name) {
-            activePlayer = name;
-            drawInventory();
-            switchTab('inv');
+        function formatTime(seconds) {
+            if (seconds <= 0) return "READY";
+            let h = math.floor(seconds / 3600);
+            let m = math.floor((seconds % 3600) / 60);
+            let s = seconds % 60;
+            if (h > 0) return `${h}h ${m}m`;
+            return `${m}:${s < 10 ? '0' : ''}${s}`;
         }
 
         async function sync() {
             try {
-                const res = await fetch(`/api/data`);
-                if(res.ok) {
-                    currentData = await res.json();
-                    const grid = document.getElementById('grid');
-                    grid.innerHTML = "";
+                const res = await fetch('/api/data');
+                if(!res.ok) return;
+                currentData = await res.json();
+                const grid = document.getElementById('grid');
+                grid.innerHTML = "";
+                
+                for(let name in currentData) {
+                    const p = currentData[name];
+                    const mg = p.minigame || {title: "None", time: "0:00", amount: "0"};
                     
-                    for(let name in currentData) {
-                        const p = currentData[name];
-                        const mg = p.minigame || {title: "None", time: "0:00", amount: "0"};
-
-                        grid.innerHTML += `
-                            <div class="card" onclick="viewPlayer('${name}')">
-                                <h3 style="color:var(--neon); margin:0;">${name}</h3>
-                                <div style="font-size:0.75em; color:#555; margin-bottom:12px;">📍 ${p.location || 'Map'}</div>
-                                
-                                <div class="stat-row"><span>BUCKS</span> <b>${(p.bucks || 0).toLocaleString()}</b></div>
-                                <div class="stat-row"><span>GINGER</span> <b>${(p.gingerbread || 0).toLocaleString()}</b></div>
-                                
-                                <div style="background:#1a1a1a; padding:8px; border-radius:6px; margin:10px 0; border-left:3px solid var(--advent);">
-                                    <div class="stat-row" style="margin:0;">
-                                        <span>📅 ADVENT</span> 
-                                        <b style="color:var(--advent)">${p.advent || 'N/A'}</b>
-                                    </div>
-                                </div>
-
-                                <div class="stat-row"><span>🔨 HUMBUG</span> <span class="${p.humbug=='READY'?'ready':''}">${p.humbug}</span></div>
-                                <div class="stat-row"><span>🛷 SLEIGH</span> <span class="${p.sleighball=='READY'?'ready':''}">${p.sleighball}</span></div>
-                                <div class="stat-row"><span>⭐ STAR</span> <span class="${p.starcatch=='READY'?'ready':''}">${p.starcatch}</span></div>
-                                
-                                <div class="minigame-box">
-                                    <div style="color:var(--neon); font-size:10px; font-weight:bold; letter-spacing:1px; margin-bottom:4px;">LIVE MINIGAME</div>
-                                    <div class="stat-row" style="margin:2px 0;">
-                                        <span style="font-size:0.85em; color:#eee;">${mg.title}</span> 
-                                        <b style="color:white;">${mg.time}</b>
-                                    </div>
-                                    <div style="font-size:11px; color:#666;">Score: ${mg.amount}</div>
-                                </div>
-                            </div>`;
-                    }
-                    if(activePlayer) drawInventory();
+                    grid.innerHTML += `
+                        <div class="card">
+                            <h3 style="color:var(--neon); margin:0;">${name}</h3>
+                            <div style="font-size:0.7em; color:#555; margin-bottom:10px;">📍 ${p.location}</div>
+                            <div class="stat-row"><span>BUCKS</span> <b>${p.bucks.toLocaleString()}</b></div>
+                            <div class="stat-row"><span>GINGER</span> <b>${p.gingerbread.toLocaleString()}</b></div>
+                            <div class="stat-row" style="color:var(--advent)"><span>📅 ADVENT</span> <b>${formatTime(p.advent_raw)}</b></div>
+                            <hr style="border:0; border-top:1px solid #222;">
+                            <div class="stat-row"><span>🔨 HUMBUG</span> <b class="${p.humbug_raw==0?'ready':''}">${formatTime(p.humbug_raw)}</b></div>
+                            <div class="stat-row"><span>🛷 SLEIGH</span> <b class="${p.sleigh_raw==0?'ready':''}">${formatTime(p.sleigh_raw)}</b></div>
+                            <div class="stat-row"><span>⭐ STAR</span> <b class="${p.star_raw==0?'ready':''}">${formatTime(p.star_raw)}</b></div>
+                            <div class="mg-box">
+                                <div style="font-size:0.7em; color:var(--neon); font-weight:bold;">LIVE: ${mg.title}</div>
+                                <div class="stat-row"><span>TIME</span> <b>${mg.time}</b></div>
+                                <div class="stat-row"><span>SCORE</span> <b>${mg.amount}</b></div>
+                            </div>
+                        </div>`;
                 }
-            } catch(e) { console.error("Sync Error:", e); }
-        }
-
-        function drawInventory() {
-            if(!activePlayer || !currentData[activePlayer]) return;
-            document.getElementById('inv-user').innerText = "INVENTORY: " + activePlayer;
-            const inv = currentData[activePlayer].inventory || {};
-            
-            const fill = (id, list) => {
-                const el = document.getElementById(id);
-                el.innerHTML = "";
-                const items = Object.values(list || {});
-                if(items.length === 0) {
-                    el.innerHTML = '<div style="color:#333; text-align:center; padding-top:20px;">Empty</div>';
-                    return;
-                }
-                items.forEach(i => {
-                    el.innerHTML += `<div class="item">${(i.id || "Item").replace(/_/g, " ")}</div>`;
-                });
-            };
-
-            fill('inv-pets', inv.pets); 
-            fill('inv-food', inv.food); 
-            fill('inv-gifts', inv.gifts);
+            } catch(e) {}
         }
 
         setInterval(sync, 3000);
