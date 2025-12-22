@@ -2,17 +2,18 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>EventSploit v1.2.8 | Full Build</title>
+    <title>EventSploit v1.2.9 | Final Build</title>
     <style>
         :root { --neon: #00ff66; --bg: #0a0a0a; --card: #111; --border: #222; --advent: #ffcc00; }
         body { background: var(--bg); color: white; font-family: 'Segoe UI', sans-serif; margin: 0; }
         .tab-bar { display: flex; justify-content: center; gap: 10px; margin: 20px 0; }
-        .tab { padding: 10px 25px; cursor: pointer; background: #151515; border-radius: 6px; color: #666; font-weight: bold; }
+        .tab { padding: 10px 25px; cursor: pointer; background: #151515; border-radius: 6px; color: #666; font-weight: bold; border: none; }
         .tab.active { background: var(--neon); color: black; box-shadow: 0 0 15px var(--neon); }
         #grid { display: flex; flex-wrap: wrap; justify-content: center; gap: 15px; padding: 20px; }
-        .card { background: var(--card); border: 1px solid var(--border); padding: 18px; border-radius: 12px; width: 310px; }
+        .card { background: var(--card); border: 1px solid var(--border); padding: 18px; border-radius: 12px; width: 310px; transition: transform 0.2s; cursor: pointer; }
+        .card:hover { transform: scale(1.02); }
         .stat-row { display: flex; justify-content: space-between; margin: 5px 0; font-size: 0.9em; }
-        .ready { color: var(--neon); font-weight: bold; }
+        .ready { color: var(--neon); font-weight: bold; text-shadow: 0 0 5px var(--neon); }
         .mg-section { background: #000; padding: 10px; border-radius: 6px; margin-top: 10px; border: 1px solid #333; }
         .mg-title { font-size: 0.7em; font-weight: bold; text-transform: uppercase; margin-bottom: 4px; }
         #page-inv { display: none; padding: 20px; text-align: center; }
@@ -23,8 +24,8 @@
 <body>
 
     <div class="tab-bar">
-        <div class="tab active" onclick="showPage('alts')">TRACKER</div>
-        <div class="tab" onclick="showPage('inv')">PET INVENTORY</div>
+        <button class="tab active" id="btn-alts" onclick="showPage('alts')">TRACKER</button>
+        <button class="tab" id="btn-inv" onclick="showPage('inv')">INVENTORY</button>
     </div>
 
     <div id="page-alts">
@@ -32,9 +33,9 @@
     </div>
 
     <div id="page-inv">
-        <h3 id="inv-target" style="color:var(--neon)">Select a player card</h3>
+        <h3 id="inv-target" style="color:var(--neon)">Click a card to see pets</h3>
         <div class="inv-col"><h4>PETS</h4><div id="inv-pets"></div></div>
-        <div class="inv-col"><h4>OTHER</h4><div id="inv-misc"></div></div>
+        <div class="inv-col"><h4>MISC ITEMS</h4><div id="inv-misc"></div></div>
     </div>
 
     <script>
@@ -44,6 +45,8 @@
         function showPage(p) {
             document.getElementById('page-alts').style.display = p === 'alts' ? 'block' : 'none';
             document.getElementById('page-inv').style.display = p === 'inv' ? 'block' : 'none';
+            document.getElementById('btn-alts').classList.toggle('active', p === 'alts');
+            document.getElementById('btn-inv').classList.toggle('active', p === 'inv');
         }
 
         function selectPlayer(name) {
@@ -96,11 +99,13 @@
                         </div>`;
                 }
                 grid.innerHTML = html;
+                if(selectedPlayer) updateInvUI();
             } catch(e) {}
         }
 
         function updateInvUI() {
             if(!selectedPlayer || !players[selectedPlayer]) return;
+            document.getElementById('inv-target').innerText = "Inventory: " + selectedPlayer;
             const inv = players[selectedPlayer].inventory || {};
             const render = (id, items) => {
                 const el = document.getElementById(id);
@@ -113,7 +118,7 @@
             render('inv-misc', inv.food);
         }
 
-        setInterval(sync, 1000); -- Fast sync for live timers
+        setInterval(sync, 1000); 
         sync();
     </script>
 </body>
