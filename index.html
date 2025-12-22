@@ -2,31 +2,22 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>EventSploit v1.3.1 | Pro Tracker</title>
+    <title>EVENTSPLOIT WINTER TRACKER</title>
     <style>
         :root { --neon: #00ff66; --bg: #0a0a0a; --card: #111; --border: #222; --advent: #ffcc00; --danger: #ff4444; }
         body { background: var(--bg); color: white; font-family: 'Segoe UI', sans-serif; margin: 0; }
-        
         .header { padding: 15px 30px; background: #000; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; }
-        
-        /* Rig Counter Low Alert */
-        .rig-counter { background: #1a1a1a; padding: 10px 20px; border-radius: 8px; border: 1px solid var(--neon); color: var(--neon); font-weight: bold; transition: 0.3s; }
-        .rig-low { border-color: var(--danger); color: var(--danger); box-shadow: 0 0 15px var(--danger); animation: pulse 1s infinite; }
-
-        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
-        @keyframes flash { 0% { color: white; } 50% { color: var(--danger); } 100% { color: white; } }
-
+        .rig-counter { background: #1a1a1a; padding: 10px 20px; border-radius: 8px; border: 1px solid var(--neon); color: var(--neon); font-weight: bold; }
+        .rig-low { border-color: var(--danger); color: var(--danger); box-shadow: 0 0 15px var(--danger); }
         .tab-bar { display: flex; justify-content: center; gap: 10px; margin: 20px 0; }
         .tab { padding: 10px 25px; cursor: pointer; background: #151515; border-radius: 6px; color: #666; font-weight: bold; border: none; }
         .tab.active { background: var(--neon); color: black; box-shadow: 0 0 15px var(--neon); }
-
         #grid { display: flex; flex-wrap: wrap; justify-content: center; gap: 15px; padding: 10px; }
         .card { background: var(--card); border: 1px solid var(--border); padding: 18px; border-radius: 12px; width: 310px; cursor: pointer; }
         .stat-row { display: flex; justify-content: space-between; margin: 5px 0; font-size: 0.9em; }
-        
+        .ready { color: var(--neon); font-weight: bold; }
         .mg-section { background: #000; padding: 10px; border-radius: 6px; margin-top: 10px; border: 1px solid #333; }
-        .timer-urgent { animation: flash 1s infinite; font-weight: bold; }
-        
+        .timer-urgent { color: var(--danger); font-weight: bold; }
         .inv-col { background: #0f0f0f; border: 1px solid #222; padding: 15px; border-radius: 10px; width: 300px; height: 500px; overflow-y: auto; display: inline-block; margin: 10px; vertical-align: top; }
         .item-row { background: #1a1a1a; padding: 8px; margin: 5px 0; border-left: 3px solid var(--neon); text-align: left; font-size: 0.85em; }
     </style>
@@ -34,21 +25,19 @@
 <body>
 
     <div class="header">
-        <h2 style="color:var(--neon); margin:0;">WINTER TRACKER / PRO</h2>
-        <div id="rig-display" class="rig-counter">RIGS REMAINING: 0</div>
+        <h2 style="color:var(--neon); margin:0;">EVENTSPLOIT WINTER TRACKER</h2>
+        <div id="rig-display" class="rig-counter">GINGERBREAD REMAINING: 0</div>
     </div>
 
     <div class="tab-bar">
-        <button class="tab active" onclick="showPage('alts')">TRACKER</button>
-        <button class="tab" onclick="showPage('inv')">INVENTORY</button>
+        <button class="tab active" id="btn-alts" onclick="showPage('alts')">TRACKER</button>
+        <button class="tab" id="btn-inv" onclick="showPage('inv')">INVENTORY</button>
     </div>
 
-    <div id="page-alts">
-        <div id="grid"></div>
-    </div>
+    <div id="page-alts"><div id="grid"></div></div>
 
     <div id="page-inv" style="display:none; text-align:center;">
-        <h3 id="inv-target" style="color:var(--neon)">Select a player card</h3>
+        <h3 id="inv-target" style="color:var(--neon)">Inventory View</h3>
         <div class="inv-col"><h4>PETS</h4><div id="inv-pets"></div></div>
         <div class="inv-col"><h4>ITEMS</h4><div id="inv-misc"></div></div>
     </div>
@@ -60,8 +49,11 @@
         function showPage(p) {
             document.getElementById('page-alts').style.display = p === 'alts' ? 'block' : 'none';
             document.getElementById('page-inv').style.display = p === 'inv' ? 'block' : 'none';
+            document.getElementById('btn-alts').classList.toggle('active', p === 'alts');
+            document.getElementById('btn-inv').classList.toggle('active', p === 'inv');
         }
 
+        // Logic for high-speed "Juicy" timers
         function formatTime(seconds) {
             if (!seconds || seconds <= 0) return "READY";
             let h = Math.floor(seconds / 3600), m = Math.floor((seconds % 3600) / 60), s = Math.floor(seconds % 60);
@@ -80,56 +72,37 @@
                     const p = players[name];
                     const mg = p.minigame || {active:false, timer:"0:00"};
                     const hh = p.humbugHunt || {active:false, timer:"0:00"};
-                    
                     if(p.rigCount > maxRigs) maxRigs = p.rigCount;
-
-                    // Logic to detect if minigame timer is low (e.g., "0:15")
-                    const isMgLow = mg.timer.includes("0:") && parseInt(mg.timer.split(":")[1]) < 30;
-                    const isHhLow = hh.timer.includes("0:") && parseInt(hh.timer.split(":")[1]) < 30;
 
                     html += `
                         <div class="card" onclick="selectedPlayer='${name}'; updateInvUI(); showPage('inv');">
                             <h3 style="color:var(--neon); margin:0;">${name}</h3>
+                            <div class="stat-row"><span>BUCKS</span> <b>${p.bucks.toLocaleString()}</b></div>
                             <div class="stat-row"><span>GINGER</span> <b>${p.gingerbread.toLocaleString()}</b></div>
                             <div class="stat-row" style="color:var(--advent)"><span>📅 ADVENT</span> <b>${formatTime(p.advent_raw)}</b></div>
                             
                             <div class="mg-section" style="border-left-color:#0088ff; opacity:${mg.active?1:0.3}">
                                 <div class="stat-row"><span style="color:#0088ff; font-size:0.8em; font-weight:bold;">${mg.title}</span></div>
-                                <div class="stat-row"><span>Timer</span> <b class="${isMgLow ? 'timer-urgent' : ''}">${mg.timer}</b></div>
+                                <div class="stat-row"><span>Timer</span> <b>${mg.timer}</b></div>
                                 <div class="stat-row"><span>Score</span> <b>${mg.score}</b></div>
                             </div>
 
                             <div class="mg-section" style="border-left-color:#ff4444; opacity:${hh.active?1:0.3}">
                                 <div class="stat-row"><span style="color:#ff4444; font-size:0.8em; font-weight:bold;">HUMBUG HUNT</span></div>
-                                <div class="stat-row"><span>Timer</span> <b class="${isHhLow ? 'timer-urgent' : ''}">${hh.timer}</b></div>
+                                <div class="stat-row"><span>Timer</span> <b>${hh.timer}</b></div>
                                 <div class="stat-row"><span>Left</span> <b>${hh.left}</b></div>
                             </div>
 
                             <div class="stat-row" style="margin-top:10px;"><span>🔨 HUMBUG</span> <b class="${p.humbug_raw<=0?'ready':''}">${formatTime(p.humbug_raw)}</b></div>
                             <div class="stat-row"><span>🛷 SLEIGH</span> <b class="${p.sleigh_raw<=0?'ready':''}">${formatTime(p.sleigh_raw)}</b></div>
+                            <div class="stat-row"><span>⭐ STAR</span> <b class="${p.star_raw<=0?'ready':''}">${formatTime(p.star_raw)}</b></div>
                         </div>`;
                 }
                 grid.innerHTML = html;
-
                 const rigEl = document.getElementById('rig-display');
-                rigEl.innerText = "RIGS REMAINING: " + maxRigs;
+                rigEl.innerText = "GINGERBREAD REMAINING: " + maxRigs;
                 rigEl.className = maxRigs < 20 ? "rig-counter rig-low" : "rig-counter";
-
             } catch(e) {}
-        }
-
-        function updateInvUI() {
-            if(!selectedPlayer || !players[selectedPlayer]) return;
-            const inv = players[selectedPlayer].inventory || {};
-            const render = (id, items) => {
-                const el = document.getElementById(id);
-                el.innerHTML = "";
-                Object.values(items || {}).forEach(item => {
-                    el.innerHTML += `<div class="item-row">${(item.id || "Item").replace(/_/g, " ")}</div>`;
-                });
-            };
-            render('inv-pets', inv.pets);
-            render('inv-misc', inv.food);
         }
 
         setInterval(sync, 1000); 
