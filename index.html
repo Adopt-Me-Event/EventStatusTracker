@@ -11,17 +11,18 @@
         .tab { padding: 10px 25px; cursor: pointer; background: #151515; border-radius: 6px; color: #666; font-weight: bold; border: none; }
         .tab.active { background: var(--neon); color: black; box-shadow: 0 0 15px var(--neon); }
         #grid { display: flex; flex-wrap: wrap; justify-content: center; gap: 15px; padding: 10px; }
-        .card { background: var(--card); border: 1px solid var(--border); padding: 18px; border-radius: 12px; width: 310px; position: relative; }
+        .card { background: var(--card); border: 1px solid var(--border); padding: 18px; border-radius: 12px; width: 310px; position: relative; cursor: pointer; }
         .stat-row { display: flex; justify-content: space-between; margin: 5px 0; font-size: 0.9em; }
         .mg-box { background: #000; padding: 10px; border-radius: 8px; margin-top: 10px; border: 1px solid #222; }
         
-        /* 3-Column Inventory */
+        /* 5-Column Inventory Layout */
         #page-inv { display: none; padding: 20px; text-align: center; }
-        .inv-wrapper { display: flex; justify-content: center; gap: 15px; flex-wrap: nowrap; overflow-x: auto; }
-        .inv-col { background: #0f0f0f; border: 1px solid #222; padding: 15px; border-radius: 12px; width: 320px; height: 650px; overflow-y: auto; }
-        .col-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #333; padding-bottom: 10px; margin-bottom: 15px; position: sticky; top: 0; background: #0f0f0f; z-index: 10; }
-        .total-badge { background: var(--neon); color: black; padding: 2px 10px; border-radius: 20px; font-weight: bold; font-size: 0.85em; }
-        .item-row { background: #1a1a1a; padding: 10px; margin: 6px 0; border-left: 4px solid var(--neon); display: flex; justify-content: space-between; align-items: center; border-radius: 4px; text-align: left; }
+        .inv-wrapper { display: flex; justify-content: flex-start; gap: 12px; overflow-x: auto; padding-bottom: 20px; }
+        .inv-col { background: #0f0f0f; border: 1px solid #222; padding: 12px; border-radius: 10px; width: 280px; min-width: 260px; height: 680px; overflow-y: auto; }
+        .col-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #333; padding-bottom: 8px; margin-bottom: 12px; position: sticky; top: 0; background: #0f0f0f; z-index: 10; }
+        .total-badge { background: var(--neon); color: black; padding: 2px 8px; border-radius: 20px; font-weight: bold; font-size: 0.8em; }
+        .item-row { background: #1a1a1a; padding: 8px; margin: 5px 0; border-left: 3px solid var(--neon); display: flex; justify-content: space-between; align-items: center; border-radius: 4px; text-align: left; font-size: 0.85em; }
+        .qty-box { background: #222; color: var(--neon); padding: 1px 6px; border-radius: 3px; font-family: monospace; }
     </style>
 </head>
 <body>
@@ -31,25 +32,34 @@
     </div>
 
     <div class="tab-bar">
-        <button class="tab active" onclick="showPage('alts')">TRACKER</button>
-        <button class="tab" onclick="showPage('inv')">INVENTORY</button>
+        <button class="tab active" id="btn-alts" onclick="showPage('alts')">TRACKER</button>
+        <button class="tab" id="btn-inv" onclick="showPage('inv')">INVENTORY</button>
     </div>
 
     <div id="page-alts"><div id="grid"></div></div>
 
     <div id="page-inv">
+        <h3 id="inv-target" style="color:var(--neon); margin-bottom:15px;">Inventory: Select an Alt</h3>
         <div class="inv-wrapper">
             <div class="inv-col">
                 <div class="col-header"><h3>PETS</h3><span id="total-pets" class="total-badge">0</span></div>
                 <div id="list-pets"></div>
             </div>
             <div class="inv-col">
+                <div class="col-header"><h3>GIFTS</h3><span id="total-gifts" class="total-badge">0</span></div>
+                <div id="list-gifts"></div>
+            </div>
+            <div class="inv-col">
                 <div class="col-header"><h3>TOYS</h3><span id="total-toys" class="total-badge">0</span></div>
                 <div id="list-toys"></div>
             </div>
             <div class="inv-col">
-                <div class="col-header"><h3>GIFTS</h3><span id="total-gifts" class="total-badge">0</span></div>
-                <div id="list-gifts"></div>
+                <div class="col-header"><h3>VEHICLES</h3><span id="total-transport" class="total-badge">0</span></div>
+                <div id="list-transport"></div>
+            </div>
+            <div class="inv-col">
+                <div class="col-header" style="font-size: 0.8em;"><h3>ACCESSORIES</h3><span id="total-acc" class="total-badge">0</span></div>
+                <div id="list-acc"></div>
             </div>
         </div>
     </div>
@@ -61,6 +71,8 @@
         function showPage(p) {
             document.getElementById('page-alts').style.display = p === 'alts' ? 'block' : 'none';
             document.getElementById('page-inv').style.display = p === 'inv' ? 'block' : 'none';
+            document.getElementById('btn-alts').classList.toggle('active', p === 'alts');
+            document.getElementById('btn-inv').classList.toggle('active', p === 'inv');
         }
 
         function formatTime(s) {
@@ -82,20 +94,17 @@
                         <div class="card" onclick="selectedPlayer='${name}'; updateInvUI(); showPage('inv');">
                             <h3 style="color:var(--neon); margin:0;">${name}</h3>
                             <div style="font-size:0.7em; color:#555; margin-bottom:5px;">📍 ${p.location}</div>
-                            
                             <div class="stat-row"><span>BUCKS</span> <b>${p.bucks.toLocaleString()}</b></div>
                             <div class="stat-row"><span>GINGER</span> <b>${p.gingerbread.toLocaleString()}</b></div>
-                            
                             <div class="stat-row" style="color:var(--advent)"><span>📅 ADVENT</span> <b>${formatTime(p.advent_raw)}</b></div>
                             
                             <div class="mg-box" style="border-left: 3px solid #0088ff; opacity:${p.minigame.active?1:0.3}">
                                 <div class="stat-row"><span style="color:#0088ff; font-weight:bold;">MinigameInGameApp</span> <b>${p.minigame.timer}</b></div>
-                                <div class="stat-row" style="font-size:0.85em; color:#666;"><span>${p.minigame.title}</span> <b>Score: ${p.minigame.score}</b></div>
+                                <div class="stat-row" style="font-size:0.8em; color:#666;"><span>${p.minigame.title}</span> <b>Score: ${p.minigame.score}</b></div>
                             </div>
 
                             <div class="mg-box" style="border-left: 3px solid #ff4444; opacity:${p.humbugHunt.active?1:0.3}">
                                 <div class="stat-row"><span style="color:#ff4444; font-weight:bold;">HUMBUG HUNT</span> <b>${p.humbugHunt.timer}</b></div>
-                                <div class="stat-row" style="font-size:0.85em; color:#666;"><span>Left: ${p.humbugHunt.left}</span></div>
                             </div>
 
                             <div class="stat-row" style="margin-top:10px;"><span>🔨 HUMBUG</span> <b>${formatTime(p.humbug_raw)}</b></div>
@@ -110,28 +119,30 @@
 
         function updateInvUI() {
             if(!selectedPlayer || !players[selectedPlayer]) return;
+            document.getElementById('inv-target').innerText = "Inventory: " + selectedPlayer;
             const inv = players[selectedPlayer].inventory || {};
             
-            const processCategory = (data, listId, badgeId) => {
+            const process = (data, listId, badgeId) => {
                 const list = document.getElementById(listId);
-                let totalCount = 0;
-                let items = {};
+                let total = 0; let items = {};
                 Object.values(data || {}).forEach(item => {
                     let name = (item.id || "Unknown").replace(/_/g, " ").toUpperCase();
                     let qty = item.amount || 1;
                     items[name] = (items[name] || 0) + qty;
-                    totalCount += qty;
+                    total += qty;
                 });
-                document.getElementById(badgeId).innerText = totalCount.toLocaleString();
+                document.getElementById(badgeId).innerText = total.toLocaleString();
                 list.innerHTML = "";
                 Object.keys(items).sort().forEach(name => {
-                    list.innerHTML += `<div class="item-row"><span>${name}</span><b>x${items[name]}</b></div>`;
+                    list.innerHTML += `<div class="item-row"><span>${name}</span><span class="qty-box">x${items[name]}</span></div>`;
                 });
             };
 
-            processCategory(inv.pets, 'list-pets', 'total-pets');
-            processCategory(inv.toys, 'list-toys', 'total-toys');
-            processCategory(inv.gifts, 'list-gifts', 'total-gifts');
+            process(inv.pets, 'list-pets', 'total-pets');
+            process(inv.gifts, 'list-gifts', 'total-gifts');
+            process(inv.toys, 'list-toys', 'total-toys');
+            process(inv.transport, 'list-transport', 'total-transport');
+            process(inv.pet_accessories, 'list-acc', 'total-acc');
         }
 
         setInterval(sync, 1000); sync();
