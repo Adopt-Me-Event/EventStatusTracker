@@ -14,22 +14,22 @@
         .tab.active { background: var(--neon); color: black; box-shadow: 0 0 15px var(--neon); }
 
         #grid { display: flex; flex-wrap: wrap; justify-content: center; gap: 15px; padding: 10px; }
-        .card { background: var(--card); border: 1px solid var(--border); padding: 18px; border-radius: 12px; width: 310px; position: relative; border: 1px solid #222; transition: 0.2s; }
-        .card:hover { border-color: var(--neon); }
-        
+        .card { background: var(--card); border: 1px solid var(--border); padding: 18px; border-radius: 12px; width: 310px; position: relative; cursor: pointer; }
         .remove-btn { position: absolute; top: 10px; right: 10px; background: #222; color: #cc4444; border: 1px solid #333; border-radius: 4px; padding: 2px 6px; cursor: pointer; font-size: 10px; }
-        .remove-btn:hover { background: var(--danger); color: white; }
-
+        
         .stat-row { display: flex; justify-content: space-between; margin: 5px 0; font-size: 0.9em; }
-        .mg-section { background: #000; padding: 10px; border-radius: 6px; margin-top: 10px; border: 1px solid #333; }
+        .mg-box { background: #000; padding: 10px; border-radius: 8px; margin-top: 10px; border: 1px solid #222; }
         
+        /* 3-Column Inventory Layout */
         #page-inv { display: none; padding: 20px; text-align: center; }
-        .inv-container { background: #0f0f0f; border: 1px solid #222; padding: 20px; border-radius: 10px; max-width: 800px; margin: 0 auto; }
-        .inv-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px; margin-top: 20px; text-align: left; }
+        .inv-wrapper { display: flex; justify-content: center; gap: 15px; flex-wrap: nowrap; overflow-x: auto; padding-bottom: 20px; }
+        .inv-col { background: #0f0f0f; border: 1px solid #222; padding: 15px; border-radius: 12px; width: 320px; min-width: 300px; height: 650px; overflow-y: auto; }
         
-        .item-card { background: #1a1a1a; padding: 12px; border-radius: 6px; border-left: 4px solid var(--neon); display: flex; justify-content: space-between; align-items: center; }
-        .item-name { font-size: 0.8em; font-weight: bold; color: #bbb; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; padding-right: 5px; }
-        .item-qty { color: var(--neon); font-family: monospace; font-size: 1.1em; font-weight: bold; }
+        .col-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #333; padding-bottom: 10px; margin-bottom: 15px; position: sticky; top: 0; background: #0f0f0f; z-index: 10; }
+        .total-badge { background: var(--neon); color: black; padding: 2px 10px; border-radius: 20px; font-weight: bold; font-size: 0.85em; }
+        
+        .item-row { background: #1a1a1a; padding: 10px; margin: 6px 0; border-left: 4px solid var(--neon); display: flex; justify-content: space-between; align-items: center; border-radius: 4px; text-align: left; }
+        .qty-label { background: #222; color: var(--neon); padding: 2px 8px; border-radius: 4px; font-weight: bold; font-family: monospace; border: 1px solid #333; font-size: 0.85em; }
     </style>
 </head>
 <body>
@@ -40,23 +40,34 @@
     </div>
 
     <div class="tab-bar">
-        <button class="tab active" id="btn-alts" onclick="showPage('alts')">ALT TRACKER</button>
-        <button class="tab" id="btn-inv" onclick="showPage('inv')">FULL INVENTORY</button>
+        <button class="tab active" id="btn-alts" onclick="showPage('alts')">TRACKER</button>
+        <button class="tab" id="btn-inv" onclick="showPage('inv')">INVENTORY</button>
     </div>
 
     <div id="page-alts"><div id="grid"></div></div>
 
     <div id="page-inv">
-        <div class="inv-container">
-            <h3 id="inv-target" style="color:var(--neon); margin-top:0;">Select a card to view all items</h3>
-            <div class="inv-grid" id="inv-list"></div>
+        <h3 id="inv-target" style="color:var(--neon); margin-bottom:20px;">Inventory: Select an Alt</h3>
+        <div class="inv-wrapper">
+            <div class="inv-col">
+                <div class="col-header"><h3>PETS</h3><span id="total-pets" class="total-badge">0</span></div>
+                <div id="list-pets"></div>
+            </div>
+            <div class="inv-col">
+                <div class="col-header"><h3>TOYS</h3><span id="total-toys" class="total-badge">0</span></div>
+                <div id="list-toys"></div>
+            </div>
+            <div class="inv-col">
+                <div class="col-header"><h3>GIFTS</h3><span id="total-gifts" class="total-badge">0</span></div>
+                <div id="list-gifts"></div>
+            </div>
         </div>
     </div>
 
     <script>
         let players = {};
-        let selectedPlayer = "";
         let hiddenPlayers = new Set();
+        let selectedPlayer = "";
 
         function showPage(p) {
             document.getElementById('page-alts').style.display = p === 'alts' ? 'block' : 'none';
@@ -65,16 +76,10 @@
             document.getElementById('btn-inv').classList.toggle('active', p === 'inv');
         }
 
-        function hideAlt(name, e) {
-            e.stopPropagation();
-            hiddenPlayers.add(name);
-            sync();
-        }
-
-        function formatTime(seconds) {
-            if (!seconds || seconds <= 0) return "READY";
-            let h = Math.floor(seconds / 3600), m = Math.floor((seconds % 3600) / 60), s = Math.floor(seconds % 60);
-            return h > 0 ? `${h}h ${m}m` : `${m < 10 ? '0' : ''}${m}:${s < 10 ? '0' : ''}${s}`;
+        function formatTime(s) {
+            if (!s || s <= 0) return "READY";
+            let m = Math.floor((s % 3600) / 60), sec = Math.floor(s % 60);
+            return `${m < 10 ? '0' : ''}${m}:${sec < 10 ? '0' : ''}${sec}`;
         }
 
         async function sync() {
@@ -82,8 +87,7 @@
                 const res = await fetch('/api/data');
                 players = await res.json();
                 const grid = document.getElementById('grid');
-                let html = "";
-                let maxRigs = 0;
+                let html = ""; let maxRigs = 0;
                 
                 for(let name in players) {
                     if (hiddenPlayers.has(name)) continue;
@@ -92,67 +96,62 @@
 
                     html += `
                         <div class="card" onclick="selectedPlayer='${name}'; updateInvUI(); showPage('inv');">
-                            <button class="remove-btn" onclick="hideAlt('${name}', event)">×</button>
+                            <button class="remove-btn" onclick="event.stopPropagation(); hiddenPlayers.add('${name}'); sync();">×</button>
                             <h3 style="color:var(--neon); margin:0;">${name}</h3>
-                            <div style="font-size:0.75em; color:#666; margin-bottom:10px;">📍 ${p.location}</div>
-                            
+                            <div style="font-size:0.75em; color:#666; margin-bottom:5px;">📍 ${p.location}</div>
                             <div class="stat-row"><span>BUCKS</span> <b>${p.bucks.toLocaleString()}</b></div>
                             <div class="stat-row"><span>GINGER</span> <b>${p.gingerbread.toLocaleString()}</b></div>
                             <div class="stat-row" style="color:var(--advent)"><span>📅 ADVENT</span> <b>${formatTime(p.advent_raw)}</b></div>
                             
-                            <div class="mg-section" style="border-left: 2px solid #0088ff; opacity:${p.minigame.active?1:0.4}">
-                                <div class="stat-row"><span style="color:#0088ff; font-weight:bold; font-size:0.8em;">${p.minigame.title}</span></div>
-                                <div class="stat-row"><span>Timer</span> <b>${p.minigame.timer}</b></div>
+                            <div class="mg-box" style="border-left-color:#0088ff; opacity:${p.minigame.active?1:0.3}">
+                                <div class="stat-row"><span style="color:#0088ff; font-weight:bold;">${p.minigame.title}</span> <b>${p.minigame.timer}</b></div>
                             </div>
 
-                            <div class="mg-section" style="border-left: 2px solid #ff4444; opacity:${p.humbugHunt.active?1:0.4}">
-                                <div class="stat-row"><span style="color:#ff4444; font-weight:bold; font-size:0.8em;">HUMBUG HUNT</span></div>
-                                <div class="stat-row"><span>Timer</span> <b>${p.humbugHunt.timer}</b></div>
+                            <div class="mg-box" style="border-left-color:#ff4444; opacity:${p.humbugHunt.active?1:0.3}">
+                                <div class="stat-row"><span style="color:#ff4444; font-weight:bold;">HUMBUG HUNT</span> <b>${p.humbugHunt.timer}</b></div>
                             </div>
 
-                            <div class="stat-row" style="margin-top:12px; font-size:0.8em; border-top:1px solid #222; padding-top:5px;">
-                                <span>⭐ STAR / 🛷 SLEIGH</span>
-                                <b>${formatTime(p.star_raw)} / ${formatTime(p.sleigh_raw)}</b>
-                            </div>
+                            <div class="stat-row" style="margin-top:12px;"><span>🔨 HUMBUG</span> <b>${formatTime(p.humbug_raw)}</b></div>
+                            <div class="stat-row"><span>🛷 SLEIGH</span> <b>${formatTime(p.sleigh_raw)}</b></div>
+                            <div class="stat-row"><span>⭐ STAR</span> <b>${formatTime(p.star_raw)}</b></div>
                         </div>`;
                 }
                 grid.innerHTML = html;
                 document.getElementById('rig-display').innerText = "GINGERBREAD REMAINING: " + maxRigs;
-                if (selectedPlayer) updateInvUI();
+                if(selectedPlayer) updateInvUI();
             } catch(e) {}
         }
 
         function updateInvUI() {
             if(!selectedPlayer || !players[selectedPlayer]) return;
-            document.getElementById('inv-target').innerText = "TOTAL ASSETS: " + selectedPlayer.toUpperCase();
+            document.getElementById('inv-target').innerText = "Inventory: " + selectedPlayer;
+            const inv = players[selectedPlayer].inventory || {};
             
-            const invData = players[selectedPlayer].inventory || {};
-            const list = document.getElementById('inv-list');
-            list.innerHTML = "";
-            
-            const totals = {};
-
-            // Join all sections (pets, food, toys, gifts, transport, etc.)
-            Object.keys(invData).forEach(category => {
-                Object.values(invData[category]).forEach(item => {
-                    const name = (item.id || "Unknown").replace(/_/g, " ").toUpperCase();
-                    const amount = item.amount || 1;
-                    totals[name] = (totals[name] || 0) + amount;
+            const processCategory = (data, listId, badgeId) => {
+                const list = document.getElementById(listId);
+                let totalCount = 0;
+                let items = {};
+                
+                Object.values(data || {}).forEach(item => {
+                    let name = (item.id || "Unknown").replace(/_/g, " ").toUpperCase();
+                    let qty = item.amount || 1;
+                    items[name] = (items[name] || 0) + qty;
+                    totalCount += qty;
                 });
-            });
 
-            // Sort and Render
-            Object.keys(totals).sort().forEach(name => {
-                list.innerHTML += `
-                    <div class="item-card">
-                        <div class="item-name">${name}</div>
-                        <div class="item-qty">${totals[name].toLocaleString()}</div>
-                    </div>`;
-            });
+                document.getElementById(badgeId).innerText = totalCount.toLocaleString();
+                list.innerHTML = "";
+                Object.keys(items).sort().forEach(name => {
+                    list.innerHTML += `<div class="item-row"><span>${name}</span><span class="qty-label">x${items[name].toLocaleString()}</span></div>`;
+                });
+            };
+
+            processCategory(inv.pets, 'list-pets', 'total-pets');
+            processCategory(inv.toys, 'list-toys', 'total-toys');
+            processCategory(inv.gifts, 'list-gifts', 'total-gifts');
         }
 
-        setInterval(sync, 1000); 
-        sync();
+        setInterval(sync, 1000); sync();
     </script>
 </body>
 </html>
