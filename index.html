@@ -4,15 +4,26 @@
     <meta charset="UTF-8">
     <title>EVENTSPLOIT WINTER TRACKER</title>
     <style>
-        :root { --neon: #00ff66; --bg: #0a0a0a; --card: #0d0d0d; --border: #1a1a1a; --dev: #a333ff; --advent: #ffcc00; --blue: #0088ff; --purple: #bf00ff; }
+        :root { --neon: #00ff66; --bg: #000; --card: #0d0d0d; --border: #1a1a1a; --dev: #a333ff; --advent: #ffcc00; --blue: #0088ff; --purple: #bf00ff; }
         body { background: var(--bg); color: white; font-family: 'Segoe UI', sans-serif; margin: 0; }
         #grid { display: flex; flex-wrap: wrap; justify-content: center; gap: 15px; padding: 20px; }
         .card { background: var(--card); border: 1px solid var(--border); padding: 18px; border-radius: 12px; width: 340px; }
-        .test-badge { background: var(--dev); color: white; font-size: 0.7em; text-align: center; padding: 6px; border-radius: 6px; font-weight: bold; margin-bottom: 12px; text-transform: uppercase; }
+        
+        /* MATCHING SCREENSHOT VISUALS */
+        .test-badge { background: var(--dev); color: white; font-size: 0.75em; text-align: center; padding: 8px; border-radius: 6px; font-weight: bold; margin-bottom: 12px; text-transform: uppercase; }
         .player-name { color: var(--neon); font-size: 1.6em; font-weight: bold; margin: 0; }
-        .stat-row { display: flex; justify-content: space-between; margin: 6px 0; font-size: 1em; }
-        .box { background: #000; padding: 10px; border-radius: 8px; border: 1px solid #222; margin: 10px 0; font-size: 0.85em; }
+        .loc-row { color: #555; font-size: 0.85em; margin: 5px 0; display: flex; align-items: center; gap: 5px; }
+        
+        .stat-row { display: flex; justify-content: space-between; margin: 6px 0; font-size: 1.05em; }
+        .advent-text { color: var(--advent); font-weight: bold; }
+        
+        /* ACTIVE GAME BOXES */
+        .box { background: #000; padding: 10px; border-radius: 8px; border: 1px solid #222; margin: 12px 0; font-size: 0.85em; }
         .ready { font-weight: bold; color: white; }
+        
+        #page-inv { display: none; padding: 20px; }
+        .inv-wrapper { display: flex; gap: 12px; overflow-x: auto; }
+        .inv-col { background: #0f0f0f; border: 1px solid #222; padding: 12px; border-radius: 10px; width: 250px; min-width: 230px; height: 70vh; overflow-y: auto; }
     </style>
 </head>
 <body>
@@ -36,15 +47,15 @@
                         <div class="card">
                             ${p.isTesting ? `<div class="test-badge">TESTING LABEL</div>` : ''}
                             <h2 class="player-name">${name}</h2>
-                            <div style="color:#555; font-size:0.9em;">📍 ${p.serverType}!${p.location}</div>
-                            
+                            <div class="loc-row">📍 ${p.serverType}!${p.location}</div>
+
                             <div class="stat-row" style="margin-top:10px;"><span>BUCKS</span> <b>${p.bucks.toLocaleString()}</b></div>
                             <div class="stat-row"><span>GINGERBREAD</span> <b>${p.gingerbread.toLocaleString()}</b></div>
-                            <div class="stat-row" style="color:var(--advent);"><span>📅 ADVENT</span> <b>${formatTime(p.advent_raw)}</b></div>
+                            <div class="stat-row advent-text"><span>📅 ADVENT</span> <b>${formatTime(p.advent_raw)}</b></div>
 
                             ${p.minigame && p.minigame.active ? `
                             <div class="box" style="border-left: 4px solid var(--blue);">
-                                <div style="color:var(--blue); font-weight:bold; margin-bottom:5px; text-transform: uppercase;">Minigame Ingame App</div>
+                                <div style="color:var(--blue); font-weight:bold; margin-bottom:5px; text-transform:uppercase;">Minigame Ingame App</div>
                                 <div class="stat-row"><span>TITLE</span> <b>${p.minigame.title}</b></div>
                                 <div class="stat-row"><span>TIMER</span> <b>${p.minigame.timer}</b></div>
                                 <div class="stat-row"><span>SCORE</span> <b>${p.minigame.score}</b></div>
@@ -52,14 +63,14 @@
 
                             ${p.humbugGame && p.humbugGame.active ? `
                             <div class="box" style="border-left: 4px solid var(--purple);">
-                                <div style="color:var(--purple); font-weight:bold; margin-bottom:5px; text-transform: uppercase;">Humbug Hunt Active</div>
+                                <div style="color:var(--purple); font-weight:bold; margin-bottom:5px; text-transform:uppercase;">Humbug Hunt Active</div>
                                 <div class="stat-row"><span>TIMER</span> <b>${p.humbugGame.timer}</b></div>
                                 <div class="stat-row"><span>LEFT</span> <b>${p.humbugGame.left}</b></div>
                             </div>` : ''}
 
-                            <div class="stat-row"><span>🔨 HUMBUG</span> <b>${formatTime(p.humbug_raw)}</b></div>
-                            <div class="stat-row"><span>🛷 SLEIGHBALL</span> <b>${formatTime(p.sleigh_raw)}</b></div>
-                            <div class="stat-row"><span>⭐ STAR CATCH</span> <b>${formatTime(p.star_raw)}</b></div>
+                            <div class="stat-row"><span>🔨 HUMBUG</span> <b class="${p.humbug_raw <= 0 ? 'ready' : ''}">${formatTime(p.humbug_raw)}</b></div>
+                            <div class="stat-row"><span>🛷 SLEIGHBALL</span> <b class="${p.sleigh_raw <= 0 ? 'ready' : ''}">${formatTime(p.sleigh_raw)}</b></div>
+                            <div class="stat-row"><span>⭐ STAR CATCH</span> <b class="${p.star_raw <= 0 ? 'ready' : ''}">${formatTime(p.star_raw)}</b></div>
                         </div>`;
                 }
                 grid.innerHTML = html;
