@@ -1,134 +1,40 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>EVENTSPLOIT WINTER TRACKER</title>
-    <style>
-        :root { --neon: #00ff66; --bg: #000; --card: #0d0d0d; --border: #1a1a1a; --dev: #a333ff; --advent: #ffcc00; --blue: #0088ff; --purple: #bf00ff; }
-        body { background: var(--bg); color: white; font-family: 'Segoe UI', sans-serif; margin: 0; }
-        .header { padding: 20px; border-bottom: 1px solid var(--border); text-align: center; }
-        .header h1 { color: var(--neon); margin: 0; letter-spacing: 2px; text-transform: uppercase; }
-        
-        .tab-bar { display: flex; justify-content: center; gap: 10px; margin: 15px 0; }
-        .tab { padding: 10px 25px; cursor: pointer; background: #111; border: 1px solid #222; border-radius: 6px; color: #666; font-weight: bold; }
-        .tab.active { background: var(--neon); color: black; }
+<div class="card" onclick="selectAlt('${name}')">
+    <h2 class="player-name">${name}</h2>
+    <div style="color:#555; font-size:0.85em;">📍 ${p.location}</div>
+    
+    <div class="stat-row" style="margin-top:10px;"><span>BUCKS</span> <b>${p.bucks.toLocaleString()}</b></div>
+    <div class="stat-row"><span>GINGERBREAD</span> <b>${p.gingerbread.toLocaleString()}</b></div>
+    <div class="stat-row" style="color:var(--advent);"><span>📅 NEXT ADVENT</span> <b>${formatTime(p.advent_raw)}</b></div>
 
-        #grid { display: flex; flex-wrap: wrap; justify-content: center; gap: 15px; padding: 20px; }
-        .card { background: var(--card); border: 1px solid var(--border); padding: 18px; border-radius: 12px; width: 340px; cursor: pointer; }
-        .test-badge { background: var(--dev); color: white; font-size: 0.7em; text-align: center; padding: 6px; border-radius: 6px; font-weight: bold; margin-bottom: 12px; }
-        .player-name { color: var(--neon); font-size: 1.6em; font-weight: bold; margin: 0; }
-        .stat-row { display: flex; justify-content: space-between; margin: 6px 0; }
-        .box { background: #000; padding: 10px; border-radius: 8px; border: 1px solid #222; margin: 10px 0; font-size: 0.85em; }
-
-        #page-inv { display: none; padding: 20px; }
-        .inv-wrapper { display: flex; gap: 12px; overflow-x: auto; }
-        .inv-col { background: #0a0a0a; border: 1px solid #222; padding: 15px; border-radius: 10px; min-width: 250px; height: 70vh; overflow-y: auto; }
-        .inv-item { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid #111; font-size: 0.85em; }
-    </style>
-</head>
-<body>
-    <div class="header"><h1>EVENTSPLOIT WINTER TRACKER</h1></div>
-    <div class="tab-bar">
-        <button class="tab active" onclick="showPage('alts')">TRACKER</button>
-        <button class="tab" onclick="showPage('inv')">INVENTORY</button>
+    ${p.adventRewards && p.adventRewards.length > 0 ? `
+    <div class="box" style="border-left: 4px solid var(--advent); max-height: 80px; overflow-y: auto;">
+        <div style="color:var(--advent); font-weight:bold; font-size:0.75em; margin-bottom:4px;">REWARDS UNLOCKED</div>
+        ${p.adventRewards.map(r => `<div style="font-size:0.8em; color:#bbb;">${r}</div>`).join('')}
     </div>
+    ` : ''}
 
-    <div id="page-alts"><div id="grid"></div></div>
+    ${p.minigame && p.minigame.active ? `
+    <div class="box" style="border-left: 4px solid var(--blue);">
+        <div style="color:var(--blue); font-weight:bold;">${p.minigame.title}</div>
+        <div class="stat-row"><span>TIME</span> <b>${p.minigame.timer}</b></div>
+        <div class="stat-row"><span>SCORE</span> <b>${p.minigame.score}</b></div>
+    </div>` : ''}
 
-    <div id="page-inv">
-        <h2 id="inv-title" style="text-align:center; color:var(--neon);">Select an Alt to View Items</h2>
-        <div class="inv-wrapper">
-            <div class="inv-col"><h3>PETS</h3><div id="list-pets"></div></div>
-            <div class="inv-col"><h3>GIFTS</h3><div id="list-gifts"></div></div>
-            <div class="inv-col"><h3>TOYS</h3><div id="list-toys"></div></div>
-            <div class="inv-col"><h3>VEHICLES</h3><div id="list-transport"></div></div>
-            <div class="inv-col"><h3>CLOTHING</h3><div id="list-acc"></div></div>
-        </div>
-    </div>
+    ${p.humbugGame && p.humbugGame.active ? `
+    <div class="box" style="border-left: 4px solid var(--purple);">
+        <div style="color:var(--purple); font-weight:bold;">HUMBUG HUNT</div>
+        ${p.humbugGame.hint ? `<div style="color:#e199ff; font-size:0.85em; background:#221133; padding:3px; text-align:center;">${p.humbugGame.hint}</div>` : ''}
+        <div class="stat-row"><span>TIME</span> <b>${p.humbugGame.timer}</b></div>
+        <div class="stat-row"><span>LEFT</span> <b>${p.humbugGame.left}</b></div>
+    </div>` : ''}
 
-    <script>
-        let players = {};
-        let selectedPlayer = "";
+    ${p.rewards && p.rewards.active ? `
+    <div class="box" style="border-left: 4px solid var(--neon);">
+        <div style="color:var(--neon); font-weight:bold;">RESULTS</div>
+        ${p.rewards.results.map(r => `<div class="stat-row"><span>${r.t}</span> <b>${r.v}</b></div>`).join('')}
+        <div style="color:var(--advent); text-align:right; font-weight:bold; border-top:1px solid #222;">${p.rewards.finalReward}</div>
+    </div>` : ''}
 
-        function formatTime(s) {
-            if (s <= 0) return "READY";
-            let h = Math.floor(s / 3600), m = Math.floor((s % 3600) / 60), sec = Math.floor(s % 60);
-            return h > 0 ? `${h}h ${m}m ${sec}s` : `${m}:${sec < 10 ? '0' : ''}${sec}`;
-        }
-
-        async function sync() {
-            try {
-                const res = await fetch('/api/data');
-                players = await res.json();
-                const grid = document.getElementById('grid');
-                let html = "";
-                for(let name in players) {
-                    const p = players[name];
-                    html += `
-                        <div class="card" onclick="selectAlt('${name}')">
-                            ${p.isTesting ? `<div class="test-badge">TESTING LABEL</div>` : ''}
-                            <h2 class="player-name">${name}</h2>
-                            <div style="color:#555; font-size:0.85em; margin-bottom:10px;">📍 ${p.serverType}!${p.location}</div>
-                            
-                            <div class="stat-row"><span>BUCKS</span> <b>${p.bucks.toLocaleString()}</b></div>
-                            <div class="stat-row"><span>GINGERBREAD</span> <b>${p.gingerbread.toLocaleString()}</b></div>
-                            <div class="stat-row" style="color:var(--advent);"><span>📅 ADVENT</span> <b>${formatTime(p.advent_raw)}</b></div>
-                            <div class="stat-row" style="color:#666; font-size:0.8em;"><span>🕒 UPTIME</span> <b>${formatTime(p.uptime_raw)}</b></div>
-
-                            ${p.rewards && p.rewards.active ? `
-                            <div class="box" style="border-left: 4px solid var(--neon);">
-                                <div style="color:var(--neon); font-weight:bold; margin-bottom:5px;">MINIGAME RESULTS</div>
-                                ${p.rewards.results.map(r => `<div class="stat-row"><span>${r.t}</span> <b>${r.v}</b></div>`).join('')}
-                                <div class="stat-row" style="margin-top:5px; border-top:1px solid #222; color:var(--advent);"><span>REWARD</span> <b>${p.rewards.finalReward}</b></div>
-                            </div>` : ''}
-
-                            ${p.humbugGame && p.humbugGame.active ? `
-                            <div class="box" style="border-left: 4px solid var(--purple);">
-                                <div style="color:var(--purple); font-weight:bold; margin-bottom:5px;">HUMBUG HUNT ACTIVE</div>
-                                ${p.humbugGame.hint ? `<div style="color:#e199ff; font-size:0.9em; text-align:center; background:#221133; padding:4px; margin-bottom:5px; border-radius:4px;">${p.humbugGame.hint}</div>` : ''}
-                                <div class="stat-row"><span>TIMER</span> <b>${p.humbugGame.timer}</b></div>
-                                <div class="stat-row"><span>LEFT</span> <b>${p.humbugGame.left}</b></div>
-                            </div>` : ''}
-
-                            <div class="stat-row"><span>🔨 HUMBUG</span> <b>${formatTime(p.humbug_raw)}</b></div>
-                            <div class="stat-row"><span>🛷 SLEIGHBALL</span> <b>${formatTime(p.sleigh_raw)}</b></div>
-                            <div class="stat-row"><span>⭐ STAR CATCH</span> <b>${formatTime(p.star_raw)}</b></div>
-                        </div>`;
-                }
-                grid.innerHTML = html;
-                if(selectedPlayer) updateInvUI();
-            } catch(e) {}
-        }
-
-        function selectAlt(name) {
-            selectedPlayer = name;
-            document.getElementById('inv-title').innerText = "Inventory: " + name;
-            updateInvUI();
-            showPage('inv');
-        }
-
-        function updateInvUI() {
-            if(!selectedPlayer || !players[selectedPlayer]) return;
-            const inv = players[selectedPlayer].inventory;
-            const map = {'pets':'list-pets', 'gifts':'list-gifts', 'toys':'list-toys', 'transport':'list-transport', 'pet_accessories':'list-acc'};
-            for(let k in map) {
-                let h = "";
-                if(inv[k]) {
-                    for(let id in inv[k]) {
-                        h += `<div class="inv-item"><span>${id}</span> <b>x${inv[k][id]}</b></div>`;
-                    }
-                }
-                document.getElementById(map[k]).innerHTML = h || "Empty";
-            }
-        }
-
-        function showPage(p) {
-            document.getElementById('page-alts').style.display = p === 'alts' ? 'block' : 'none';
-            document.getElementById('page-inv').style.display = p === 'inv' ? 'block' : 'none';
-            document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.innerText.toLowerCase().includes(p)));
-        }
-
-        setInterval(sync, 1000);
-    </script>
-</body>
-</html>
+    <div class="stat-row"><span>🔨 HUMBUG</span> <b>${formatTime(p.humbug_raw)}</b></div>
+    <div class="stat-row"><span>🛷 SLEIGHBALL</span> <b>${formatTime(p.sleigh_raw)}</b></div>
+</div>
