@@ -23,7 +23,7 @@
         #page-inv { display: none; padding: 20px; }
         .inv-wrapper { display: flex; gap: 12px; overflow-x: auto; }
         .inv-col { background: #0a0a0a; border: 1px solid #222; padding: 15px; border-radius: 10px; min-width: 250px; height: 70vh; overflow-y: auto; }
-        .inv-item { display: flex; justify-content: space-between; padding: 4px 0; border-bottom: 1px solid #111; font-size: 0.85em; }
+        .inv-item { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid #111; font-size: 0.85em; }
     </style>
 </head>
 <body>
@@ -36,7 +36,7 @@
     <div id="page-alts"><div id="grid"></div></div>
 
     <div id="page-inv">
-        <h2 id="inv-title" style="text-align:center; color:var(--neon);">Select an Alt</h2>
+        <h2 id="inv-title" style="text-align:center; color:var(--neon);">Select an Alt to View Items</h2>
         <div class="inv-wrapper">
             <div class="inv-col"><h3>PETS</h3><div id="list-pets"></div></div>
             <div class="inv-col"><h3>GIFTS</h3><div id="list-gifts"></div></div>
@@ -68,10 +68,12 @@
                         <div class="card" onclick="selectAlt('${name}')">
                             ${p.isTesting ? `<div class="test-badge">TESTING LABEL</div>` : ''}
                             <h2 class="player-name">${name}</h2>
-                            <div class="stat-row" style="margin-top:10px;"><span>BUCKS</span> <b>${p.bucks.toLocaleString()}</b></div>
+                            <div style="color:#555; font-size:0.85em; margin-bottom:10px;">📍 ${p.serverType}!${p.location}</div>
+                            
+                            <div class="stat-row"><span>BUCKS</span> <b>${p.bucks.toLocaleString()}</b></div>
                             <div class="stat-row"><span>GINGERBREAD</span> <b>${p.gingerbread.toLocaleString()}</b></div>
                             <div class="stat-row" style="color:var(--advent);"><span>📅 ADVENT</span> <b>${formatTime(p.advent_raw)}</b></div>
-                            <div class="stat-row" style="color:#666; font-size:0.8em;"><span>🕒 SCRIPT UPTIME</span> <b>${formatTime(p.uptime_raw)}</b></div>
+                            <div class="stat-row" style="color:#666; font-size:0.8em;"><span>🕒 UPTIME</span> <b>${formatTime(p.uptime_raw)}</b></div>
 
                             ${p.rewards && p.rewards.active ? `
                             <div class="box" style="border-left: 4px solid var(--neon);">
@@ -80,17 +82,10 @@
                                 <div class="stat-row" style="margin-top:5px; border-top:1px solid #222; color:var(--advent);"><span>REWARD</span> <b>${p.rewards.finalReward}</b></div>
                             </div>` : ''}
 
-                            ${p.minigame && p.minigame.active ? `
-                            <div class="box" style="border-left: 4px solid var(--blue);">
-                                <div style="color:var(--blue); font-weight:bold; margin-bottom:5px;">MINIGAME INGAME APP</div>
-                                <div class="stat-row"><span>TITLE</span> <b>${p.minigame.title}</b></div>
-                                <div class="stat-row"><span>TIMER</span> <b>${p.minigame.timer}</b></div>
-                                <div class="stat-row"><span>SCORE</span> <b>${p.minigame.score}</b></div>
-                            </div>` : ''}
-
                             ${p.humbugGame && p.humbugGame.active ? `
                             <div class="box" style="border-left: 4px solid var(--purple);">
                                 <div style="color:var(--purple); font-weight:bold; margin-bottom:5px;">HUMBUG HUNT ACTIVE</div>
+                                ${p.humbugGame.hint ? `<div style="color:#e199ff; font-size:0.9em; text-align:center; background:#221133; padding:4px; margin-bottom:5px; border-radius:4px;">${p.humbugGame.hint}</div>` : ''}
                                 <div class="stat-row"><span>TIMER</span> <b>${p.humbugGame.timer}</b></div>
                                 <div class="stat-row"><span>LEFT</span> <b>${p.humbugGame.left}</b></div>
                             </div>` : ''}
@@ -101,6 +96,7 @@
                         </div>`;
                 }
                 grid.innerHTML = html;
+                if(selectedPlayer) updateInvUI();
             } catch(e) {}
         }
 
@@ -117,7 +113,11 @@
             const map = {'pets':'list-pets', 'gifts':'list-gifts', 'toys':'list-toys', 'transport':'list-transport', 'pet_accessories':'list-acc'};
             for(let k in map) {
                 let h = "";
-                if(inv[k]) for(let id in inv[k]) h += `<div class="inv-item"><span>${id}</span> <b>x${inv[k][id]}</b></div>`;
+                if(inv[k]) {
+                    for(let id in inv[k]) {
+                        h += `<div class="inv-item"><span>${id}</span> <b>x${inv[k][id]}</b></div>`;
+                    }
+                }
                 document.getElementById(map[k]).innerHTML = h || "Empty";
             }
         }
