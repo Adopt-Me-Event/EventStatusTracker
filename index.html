@@ -4,33 +4,30 @@
     <meta charset="UTF-8">
     <title>EVENTSPLOIT WINTER TRACKER</title>
     <style>
-        :root { --neon: #00ff66; --bg: #0a0a0a; --card: #111; --border: #222; --dev: #a333ff; }
+        :root { --neon: #00ff66; --bg: #0a0a0a; --card: #111; --border: #222; --dev: #a333ff; --advent: #ffcc00; }
         body { background: var(--bg); color: white; font-family: 'Segoe UI', sans-serif; margin: 0; }
-        .header { padding: 15px 30px; background: #000; border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100; }
-        .tab-bar { display: flex; justify-content: center; gap: 10px; margin: 20px 0; }
+        .header { padding: 15px; background: #000; border-bottom: 1px solid var(--border); text-align: center; position: sticky; top: 0; z-index: 100; }
+        .tab-bar { display: flex; justify-content: center; gap: 10px; margin: 15px 0; }
         .tab { padding: 10px 25px; cursor: pointer; background: #151515; border-radius: 6px; color: #666; font-weight: bold; border: none; }
-        .tab.active { background: var(--neon); color: black; box-shadow: 0 0 15px var(--neon); }
-        
+        .tab.active { background: var(--neon); color: black; box-shadow: 0 0 10px var(--neon); }
         #grid { display: flex; flex-wrap: wrap; justify-content: center; gap: 15px; padding: 10px; }
-        .card { background: var(--card); border: 1px solid var(--border); padding: 18px; border-radius: 12px; width: 310px; position: relative; }
-        
-        .dev-badge { background: var(--dev); color: white; font-size: 0.65em; padding: 4px; border-radius: 4px; font-weight: bold; margin-bottom: 10px; text-align: center; border: 1px solid #c175ff; }
-        .stat-row { display: flex; justify-content: space-between; margin: 5px 0; font-size: 0.9em; }
-        .job-id { color: #555; font-family: monospace; font-size: 0.7em; word-break: break-all; margin: 5px 0; background: #050505; padding: 4px; border-radius: 4px; }
-        
+        .card { background: var(--card); border: 1px solid var(--border); padding: 15px; border-radius: 12px; width: 310px; position: relative; }
+        .dev-badge { background: var(--dev); color: white; font-size: 0.65em; padding: 4px; border-radius: 4px; font-weight: bold; margin-bottom: 8px; text-align: center; }
+        .stat-row { display: flex; justify-content: space-between; margin: 4px 0; font-size: 0.9em; }
+        .job-id { color: #555; font-family: monospace; font-size: 0.65em; word-break: break-all; background: #000; padding: 4px; border-radius: 4px; margin: 5px 0; }
+        .mg-box { background: #000; padding: 8px; border-radius: 6px; margin: 8px 0; border: 1px solid #222; }
+        /* Inventory Styles */
         #page-inv { display: none; padding: 20px; }
-        .inv-wrapper { display: flex; justify-content: flex-start; gap: 12px; overflow-x: auto; padding-bottom: 20px; }
-        .inv-col { background: #0f0f0f; border: 1px solid #222; padding: 12px; border-radius: 10px; width: 260px; min-width: 240px; height: 70vh; overflow-y: auto; }
-        .col-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #333; padding-bottom: 8px; margin-bottom: 12px; position: sticky; top: 0; background: #0f0f0f; }
-        .total-badge { background: var(--neon); color: black; padding: 2px 8px; border-radius: 20px; font-weight: bold; font-size: 0.8em; }
-        .item-row { background: #1a1a1a; padding: 8px; margin: 5px 0; border-left: 3px solid var(--neon); display: flex; justify-content: space-between; font-size: 0.8em; }
+        .inv-wrapper { display: flex; gap: 10px; overflow-x: auto; }
+        .inv-col { background: #0f0f0f; border: 1px solid #222; padding: 10px; border-radius: 8px; min-width: 240px; height: 75vh; overflow-y: auto; }
+        .col-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #333; margin-bottom: 10px; }
+        .total-badge { background: var(--neon); color: black; padding: 2px 6px; border-radius: 10px; font-weight: bold; font-size: 0.8em; }
+        .item-row { background: #1a1a1a; padding: 6px; margin: 4px 0; border-left: 3px solid var(--neon); display: flex; justify-content: space-between; font-size: 0.8em; }
     </style>
 </head>
 <body>
 
-    <div class="header">
-        <h2 style="color:var(--neon); margin:0; text-align:center;">EVENTSPLOIT WINTER TRACKER</h2>
-    </div>
+    <div class="header"><h2 style="color:var(--neon); margin:0;">EVENTSPLOIT WINTER TRACKER</h2></div>
 
     <div class="tab-bar">
         <button class="tab active" onclick="showPage('alts')">TRACKER</button>
@@ -41,26 +38,11 @@
 
     <div id="page-inv">
         <div class="inv-wrapper">
-            <div class="inv-col">
-                <div class="col-header"><h3>PETS</h3><span id="total-pets" class="total-badge">0</span></div>
-                <div id="list-pets"></div>
-            </div>
-            <div class="inv-col">
-                <div class="col-header"><h3>GIFTS</h3><span id="total-gifts" class="total-badge">0</span></div>
-                <div id="list-gifts"></div>
-            </div>
-            <div class="inv-col">
-                <div class="col-header"><h3>TOYS</h3><span id="total-toys" class="total-badge">0</span></div>
-                <div id="list-toys"></div>
-            </div>
-            <div class="inv-col">
-                <div class="col-header"><h3>VEHICLES</h3><span id="total-transport" class="total-badge">0</span></div>
-                <div id="list-transport"></div>
-            </div>
-            <div class="inv-col">
-                <div class="col-header"><h3>ACCESSORIES</h3><span id="total-acc" class="total-badge">0</span></div>
-                <div id="list-acc"></div>
-            </div>
+            <div class="inv-col"><div class="col-header"><h3>PETS</h3><span id="total-pets" class="total-badge">0</span></div><div id="list-pets"></div></div>
+            <div class="inv-col"><div class="col-header"><h3>GIFTS</h3><span id="total-gifts" class="total-badge">0</span></div><div id="list-gifts"></div></div>
+            <div class="inv-col"><div class="col-header"><h3>TOYS</h3><span id="total-toys" class="total-badge">0</span></div><div id="list-toys"></div></div>
+            <div class="inv-col"><div class="col-header"><h3>VEHICLES</h3><span id="total-transport" class="total-badge">0</span></div><div id="list-transport"></div></div>
+            <div class="inv-col"><div class="col-header"><h3>ACCESSORIES</h3><span id="total-acc" class="total-badge">0</span></div><div id="list-acc"></div></div>
         </div>
     </div>
 
@@ -71,6 +53,12 @@
         function showPage(p) {
             document.getElementById('page-alts').style.display = p === 'alts' ? 'block' : 'none';
             document.getElementById('page-inv').style.display = p === 'inv' ? 'block' : 'none';
+        }
+
+        function formatTime(s) {
+            if (!s || s <= 0) return "READY";
+            let m = Math.floor((s % 3600) / 60), sec = Math.floor(s % 60);
+            return `${m < 10 ? '0' : ''}${m}:${sec < 10 ? '0' : ''}${sec}`;
         }
 
         async function sync() {
@@ -86,18 +74,28 @@
                         <div class="card" onclick="selectedPlayer='${name}'; updateInvUI(); showPage('inv');">
                             ${p.isTesting ? `<div class="dev-badge">DEVELOPER: TESTING SCRIPT</div>` : ''}
                             <h3 style="color:var(--neon); margin:0;">${name}</h3>
-                            <div style="font-size:0.75em; margin: 8px 0;">
+                            <div style="font-size:0.7em; margin: 5px 0;">
                                 <span style="color:${p.serverType === 'Private Server' ? '#00ff66' : '#ff4444'}">
                                     ${p.serverType === 'Private Server' ? '🔒' : '🌐'} ${p.serverType}
                                 </span>
                             </div>
                             <div class="job-id">JOB: ${p.jobId}</div>
+                            
                             <div class="stat-row"><span>BUCKS</span> <b>${p.bucks.toLocaleString()}</b></div>
                             <div class="stat-row"><span>GINGER</span> <b>${p.gingerbread.toLocaleString()}</b></div>
-                            <div style="background:#000; padding:8px; border-radius:6px; margin-top:10px; border:1px solid #222;">
-                                <div class="stat-row"><span style="color:#0088ff">MinigameInGameApp</span> <b>${p.minigame.timer}</b></div>
+                            
+                            <div class="stat-row" style="color:var(--advent); margin-top:8px;">
+                                <span>📅 ADVENT CALENDAR</span> <b>${formatTime(p.advent_raw)}</b>
+                            </div>
+
+                            <div class="mg-box">
+                                <div class="stat-row"><span style="color:#0088ff; font-weight:bold;">MinigameInGameApp</span> <b>${p.minigame.timer}</b></div>
                                 <div style="font-size:0.7em; color:#666;">${p.minigame.title}</div>
                             </div>
+
+                            <div class="stat-row"><span>🔨 HUMBUG HUNT</span> <b>${formatTime(p.humbug_raw)}</b></div>
+                            <div class="stat-row"><span>🛷 SLEIGHBALL</span> <b>${formatTime(p.sleigh_raw)}</b></div>
+                            <div class="stat-row"><span>⭐ STAR CATCH</span> <b>${formatTime(p.star_raw)}</b></div>
                         </div>`;
                 }
                 grid.innerHTML = html;
