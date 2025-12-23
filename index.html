@@ -4,22 +4,53 @@
     <meta charset="UTF-8">
     <title>EVENTSPLOIT WINTER TRACKER</title>
     <style>
-        :root { --neon: #00ff66; --bg: #000; --card: #0d0d0d; --border: #1a1a1a; --dev: #a333ff; --advent: #ffcc00; --blue: #0088ff; --purple: #bf00ff; }
+        :root { --neon: #00ff66; --bg: #000; --card: #0d0d0d; --border: #1a1a1a; --dev: #a333ff; --advent: #ffcc00; --blue: #0088ff; }
         body { background: var(--bg); color: white; font-family: 'Segoe UI', sans-serif; margin: 0; }
-        .header { padding: 20px; background: #000; border-bottom: 1px solid var(--border); text-align: center; }
-        .header h1 { color: var(--neon); margin: 0; font-size: 1.8em; letter-spacing: 2px; }
+        .header { padding: 20px; border-bottom: 1px solid var(--border); text-align: center; }
+        .header h1 { color: var(--neon); margin: 0; letter-spacing: 2px; }
+        
+        .tab-bar { display: flex; justify-content: center; gap: 10px; margin: 15px 0; }
+        .tab { padding: 10px 25px; cursor: pointer; background: #111; border: 1px solid #222; border-radius: 6px; color: #666; font-weight: bold; }
+        .tab.active { background: var(--neon); color: black; }
+
         #grid { display: flex; flex-wrap: wrap; justify-content: center; gap: 15px; padding: 20px; }
-        .card { background: var(--card); border: 1px solid var(--border); padding: 18px; border-radius: 12px; width: 340px; }
-        .test-badge { background: var(--dev); color: white; font-size: 0.75em; text-align: center; padding: 8px; border-radius: 6px; font-weight: bold; margin-bottom: 12px; text-transform: uppercase; }
+        .card { background: var(--card); border: 1px solid var(--border); padding: 18px; border-radius: 12px; width: 340px; cursor: pointer; }
         .player-name { color: var(--neon); font-size: 1.6em; font-weight: bold; margin: 0; }
-        .stat-row { display: flex; justify-content: space-between; margin: 6px 0; font-size: 1.05em; }
+        .stat-row { display: flex; justify-content: space-between; margin: 6px 0; }
         .box { background: #000; padding: 10px; border-radius: 8px; border: 1px solid #222; margin: 12px 0; font-size: 0.85em; }
+
+        /* INVENTORY SYSTEM */
+        #page-inv { display: none; padding: 20px; }
+        .inv-wrapper { display: flex; gap: 15px; overflow-x: auto; padding-bottom: 20px; }
+        .inv-col { background: #0a0a0a; border: 1px solid #1a1a1a; padding: 15px; border-radius: 10px; min-width: 250px; height: 75vh; overflow-y: auto; }
+        .inv-item { display: flex; justify-content: space-between; padding: 5px 0; border-bottom: 1px solid #111; font-size: 0.9em; }
     </style>
 </head>
 <body>
     <div class="header"><h1>EVENTSPLOIT WINTER TRACKER</h1></div>
-    <div id="grid"></div>
+    
+    <div class="tab-bar">
+        <button class="tab active" onclick="showPage('alts')">TRACKER</button>
+        <button class="tab" onclick="showPage('inv')">INVENTORY</button>
+    </div>
+
+    <div id="page-alts"><div id="grid"></div></div>
+
+    <div id="page-inv">
+        <h2 id="inv-player-title" style="text-align:center; color:var(--neon);">Select an Alt to View Inventory</h2>
+        <div class="inv-wrapper">
+            <div class="inv-col"><h3>PETS</h3><div id="list-pets"></div></div>
+            <div class="inv-col"><h3>GIFTS</h3><div id="list-gifts"></div></div>
+            <div class="inv-col"><h3>TOYS</h3><div id="list-toys"></div></div>
+            <div class="inv-col"><h3>VEHICLES</h3><div id="list-transport"></div></div>
+            <div class="inv-col"><h3>CLOTHING</h3><div id="list-acc"></div></div>
+        </div>
+    </div>
+
     <script>
+        let players = {};
+        let selectedPlayer = "";
+
         function formatTime(s) {
             if (s <= 0) return "READY";
             let h = Math.floor(s / 3600), m = Math.floor((s % 3600) / 60), sec = Math.floor(s % 60);
@@ -29,35 +60,24 @@
         async function sync() {
             try {
                 const res = await fetch('/api/data');
-                const players = await res.json();
+                players = await res.json();
                 const grid = document.getElementById('grid');
                 let html = "";
                 for(let name in players) {
                     const p = players[name];
                     html += `
-                        <div class="card">
-                            ${p.isTesting ? `<div class="test-badge">TESTING LABEL</div>` : ''}
+                        <div class="card" onclick="selectAlt('${name}')">
                             <h2 class="player-name">${name}</h2>
-                            <div style="color:#555; font-size:0.85em; margin-bottom:10px;">📍 ${p.serverType}!${p.location}</div>
-                            
-                            <div class="stat-row"><span>BUCKS</span> <b>${p.bucks.toLocaleString()}</b></div>
+                            <div class="stat-row" style="margin-top:10px;"><span>BUCKS</span> <b>${p.bucks.toLocaleString()}</b></div>
                             <div class="stat-row"><span>GINGERBREAD</span> <b>${p.gingerbread.toLocaleString()}</b></div>
                             <div class="stat-row" style="color:var(--advent);"><span>📅 ADVENT</span> <b>${formatTime(p.advent_raw)}</b></div>
-                            <div class="stat-row" style="color:#888; font-size:0.9em;"><span>🕒 SCRIPT UPTIME</span> <b>${formatTime(p.uptime_raw)}</b></div>
+                            <div class="stat-row" style="color:#666; font-size:0.8em;"><span>🕒 UPTIME</span> <b>${formatTime(p.uptime_raw)}</b></div>
 
-                            ${p.minigame && p.minigame.active ? `
-                            <div class="box" style="border-left: 4px solid var(--blue);">
-                                <div style="color:var(--blue); font-weight:bold; margin-bottom:5px;">MINIGAME INGAME APP</div>
-                                <div class="stat-row"><span>TITLE</span> <b>${p.minigame.title}</b></div>
-                                <div class="stat-row"><span>TIMER</span> <b>${p.minigame.timer}</b></div>
-                                <div class="stat-row"><span>SCORE</span> <b>${p.minigame.score}</b></div>
-                            </div>` : ''}
-
-                            ${p.humbugGame && p.humbugGame.active ? `
-                            <div class="box" style="border-left: 4px solid var(--purple);">
-                                <div style="color:var(--purple); font-weight:bold; margin-bottom:5px;">HUMBUG HUNT ACTIVE</div>
-                                <div class="stat-row"><span>TIMER</span> <b>${p.humbugGame.timer}</b></div>
-                                <div class="stat-row"><span>LEFT</span> <b>${p.humbugGame.left}</b></div>
+                            ${p.rewards && p.rewards.active ? `
+                            <div class="box" style="border-left: 4px solid var(--neon);">
+                                <div style="color:var(--neon); font-weight:bold; margin-bottom:5px;">MINIGAME RESULTS</div>
+                                ${p.rewards.results.map(r => `<div class="stat-row"><span>${r.t}</span> <b>${r.v}</b></div>`).join('')}
+                                <div class="stat-row" style="margin-top:5px; border-top:1px solid #222; color:var(--advent);"><span>REWARD</span> <b>${p.finalReward}</b></div>
                             </div>` : ''}
 
                             <div class="stat-row"><span>🔨 HUMBUG</span> <b>${formatTime(p.humbug_raw)}</b></div>
@@ -68,6 +88,36 @@
                 grid.innerHTML = html;
             } catch(e) {}
         }
+
+        function selectAlt(name) {
+            selectedPlayer = name;
+            document.getElementById('inv-player-title').innerText = "Inventory for " + name;
+            updateInvUI();
+            showPage('inv');
+        }
+
+        function updateInvUI() {
+            if(!selectedPlayer || !players[selectedPlayer]) return;
+            const inv = players[selectedPlayer].inventory;
+            const categories = { 'pets': 'list-pets', 'gifts': 'list-gifts', 'toys': 'list-toys', 'transport': 'list-transport', 'pet_accessories': 'list-acc' };
+            
+            for(let key in categories) {
+                let html = "";
+                if(inv[key]) {
+                    for(let itemID in inv[key]) {
+                        html += `<div class="inv-item"><span>${itemID}</span> <b>x${inv[key][itemID]}</b></div>`;
+                    }
+                }
+                document.getElementById(categories[key]).innerHTML = html || "Empty";
+            }
+        }
+
+        function showPage(page) {
+            document.getElementById('page-alts').style.display = page === 'alts' ? 'block' : 'none';
+            document.getElementById('page-inv').style.display = page === 'inv' ? 'block' : 'none';
+            document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.innerText.toLowerCase().includes(page)));
+        }
+
         setInterval(sync, 1000);
     </script>
 </body>
