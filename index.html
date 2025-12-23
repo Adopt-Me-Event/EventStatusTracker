@@ -4,88 +4,71 @@
     <meta charset="UTF-8">
     <title>EVENTSPLOIT WINTER TRACKER</title>
     <style>
-        :root { --neon: #00ff66; --bg: #0a0a0a; --card: #111; --border: #222; --dev: #a333ff; --advent: #ffcc00; }
+        :root { --neon: #00ff66; --bg: #0a0a0a; --card: #111; --border: #222; --dev: #a333ff; --advent: #ffcc00; --blue: #0088ff; --purple: #bf00ff; }
         body { background: var(--bg); color: white; font-family: 'Segoe UI', sans-serif; margin: 0; }
-        .header { padding: 15px; background: #000; border-bottom: 1px solid var(--border); text-align: center; position: sticky; top: 0; z-index: 100; }
+        .header { padding: 15px; background: #000; border-bottom: 1px solid var(--border); text-align: center; }
         #grid { display: flex; flex-wrap: wrap; justify-content: center; gap: 15px; padding: 20px; }
-        .card { background: var(--card); border: 1px solid var(--border); padding: 18px; border-radius: 12px; width: 320px; }
-        
+        .card { background: var(--card); border: 1px solid var(--border); padding: 18px; border-radius: 12px; width: 330px; }
+        .test-badge { background: var(--dev); color: white; font-size: 0.6em; text-align: center; padding: 4px; border-radius: 4px; font-weight: bold; margin-bottom: 10px; }
         .player-name { color: var(--neon); font-size: 1.4em; font-weight: bold; margin: 0; }
-        .loc-text { font-size: 0.8em; color: #666; display: block; margin: 5px 0; }
-        .uptime-text { font-size: 0.7em; color: #444; display: block; margin-bottom: 10px; }
-        
-        .stat-row { display: flex; justify-content: space-between; margin: 5px 0; font-size: 0.95em; }
-        .advent-row { color: var(--advent); font-weight: bold; margin-top: 10px; border-top: 1px solid #222; padding-top: 10px; }
-        
-        .mg-box { background: #000; padding: 10px; border-radius: 8px; border: 1px solid #222; border-left: 3px solid #0088ff; margin: 10px 0; }
-        .ready-btn { color: white; font-weight: bold; }
+        .stat-row { display: flex; justify-content: space-between; margin: 5px 0; font-size: 0.9em; }
+        /* Box Styles for Active Games */
+        .mg-box { background: #000; padding: 10px; border-radius: 8px; border: 1px solid #222; border-left: 4px solid var(--blue); margin: 10px 0; }
+        .hum-box { background: #000; padding: 10px; border-radius: 8px; border: 1px solid #222; border-left: 4px solid var(--purple); margin: 10px 0; }
     </style>
 </head>
 <body>
-
     <div class="header"><h2 style="color:var(--neon); margin:0;">EVENTSPLOIT WINTER TRACKER</h2></div>
     <div id="grid"></div>
 
     <script>
-        let players = {};
-
         function formatTime(s) {
             if (s <= 0) return "READY";
-            let h = Math.floor(s / 3600);
-            let m = Math.floor((s % 3600) / 60);
-            let sec = Math.floor(s % 60);
-            
-            if (h > 0) {
-                return `${h}h ${m}m ${sec}s`;
-            }
-            return `${m}:${sec < 10 ? '0' : ''}${sec}`;
-        }
-
-        function formatUptime(s) {
-            let h = Math.floor(s / 3600);
-            let m = Math.floor((s % 3600) / 60);
-            return h > 0 ? `${h}h ${m}m` : `${m}m`;
+            let h = Math.floor(s / 3600), m = Math.floor((s % 3600) / 60), sec = Math.floor(s % 60);
+            return h > 0 ? `${h}h ${m}m ${sec}s` : `${m}:${sec < 10 ? '0' : ''}${sec}`;
         }
 
         async function sync() {
             try {
                 const res = await fetch('/api/data');
-                players = await res.json();
+                const players = await res.json();
                 const grid = document.getElementById('grid');
                 let html = "";
-                
                 for(let name in players) {
                     const p = players[name];
                     html += `
                         <div class="card">
+                            ${p.isTesting ? `<div class="test-badge">TESTING LABEL</div>` : ''}
                             <h2 class="player-name">${name}</h2>
-                            <span class="loc-text">📍 ${p.serverType}!${p.location}</span>
-                            <span class="uptime-text">Uptime: ${formatUptime(p.uptime_raw)}</span>
-
-                            <div class="stat-row"><span>BUCKS</span> <b>${p.bucks.toLocaleString()}</b></div>
-                            <div class="stat-row"><span>GINGERBREAD</span> <b>${p.gingerbread.toLocaleString()}</b></div>
+                            <span style="font-size:0.75em;color:#666;">📍 ${p.serverType}!${p.location}</span>
                             
-                            <div class="stat-row advent-row">
-                                <span>📅 ADVENT CALENDAR</span> 
-                                <span>${formatTime(p.advent_raw)}</span>
-                            </div>
+                            <div class="stat-row" style="margin-top:10px;"><span>BUCKS</span> <b>${p.bucks.toLocaleString()}</b></div>
+                            <div class="stat-row"><span>GINGERBREAD</span> <b>${p.gingerbread.toLocaleString()}</b></div>
+                            <div class="stat-row" style="color:var(--advent);"><span>📅 ADVENT</span> <b>${formatTime(p.advent_raw)}</b></div>
 
+                            ${p.minigame && p.minigame.active ? `
                             <div class="mg-box">
-                                <div class="stat-row">
-                                    <span style="color:#0088ff; font-weight:bold;">${p.minigame.title}</span> 
-                                    <b>${p.minigame.timer}</b>
-                                </div>
-                            </div>
+                                <div style="color:var(--blue); font-weight:bold; font-size:0.8em; margin-bottom:5px;">ACTIVE MINIGAME</div>
+                                <div class="stat-row"><span>TITLE</span> <b>${p.minigame.title}</b></div>
+                                <div class="stat-row"><span>TIMER</span> <b>${p.minigame.timer}</b></div>
+                                <div class="stat-row"><span>SCORE</span> <b>${p.minigame.score}</b></div>
+                            </div>` : ''}
 
-                            <div class="stat-row"><span>🔨 HUMBUG HUNT</span> <b class="ready-btn">${formatTime(p.humbug_raw)}</b></div>
-                            <div class="stat-row"><span>🛷 SLEIGHBALL</span> <b class="ready-btn">${formatTime(p.sleigh_raw)}</b></div>
-                            <div class="stat-row"><span>⭐ STAR CATCH</span> <b class="ready-btn">${formatTime(p.star_raw)}</b></div>
+                            ${p.humbugGame && p.humbugGame.active ? `
+                            <div class="hum-box">
+                                <div style="color:var(--purple); font-weight:bold; font-size:0.8em; margin-bottom:5px;">HUMBUG HUNT ACTIVE</div>
+                                <div class="stat-row"><span>TIMER</span> <b>${p.humbugGame.timer}</b></div>
+                                <div class="stat-row"><span>LEFT</span> <b>${p.humbugGame.left}</b></div>
+                            </div>` : ''}
+
+                            <div class="stat-row"><span>🔨 HUMBUG</span> <b>${formatTime(p.humbug_raw)}</b></div>
+                            <div class="stat-row"><span>🛷 SLEIGHBALL</span> <b>${formatTime(p.sleigh_raw)}</b></div>
+                            <div class="stat-row"><span>⭐ STAR CATCH</span> <b>${formatTime(p.star_raw)}</b></div>
                         </div>`;
                 }
                 grid.innerHTML = html;
             } catch(e) {}
         }
-
         setInterval(sync, 1000);
     </script>
 </body>
