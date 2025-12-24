@@ -10,18 +10,18 @@
         .header h1 { color: var(--neon); margin: 0; letter-spacing: 2px; text-transform: uppercase; }
         
         .tab-bar { display: flex; justify-content: center; gap: 10px; margin: 15px 0; }
-        .tab { padding: 10px 25px; cursor: pointer; background: #111; border: 1px solid #222; border-radius: 6px; color: #666; font-weight: bold; transition: 0.2s; }
+        .tab { padding: 10px 25px; cursor: pointer; background: #111; border: 1px solid #222; border-radius: 6px; color: #666; font-weight: bold; }
         .tab.active { background: var(--neon); color: black; }
 
         #grid { display: flex; flex-wrap: wrap; justify-content: center; gap: 15px; padding: 20px; }
-        .card { background: var(--card); border: 1px solid var(--border); padding: 18px; border-radius: 12px; width: 340px; cursor: pointer; position: relative; }
+        .card { background: var(--card); border: 1px solid var(--border); padding: 18px; border-radius: 12px; width: 340px; cursor: pointer; }
         .player-name { color: var(--neon); font-size: 1.6em; font-weight: bold; margin: 0; }
-        .loc-label { color: #555; font-size: 0.85em; margin-bottom: 8px; }
+        .loc-label { color: #555; font-size: 0.85em; margin-bottom: 8px; font-weight: bold; }
         .stat-row { display: flex; justify-content: space-between; margin: 5px 0; }
         
-        /* THE SCROLLABLE BOXES */
-        .box { background: #000; padding: 10px; border-radius: 8px; border: 1px solid #222; margin: 8px 0; font-size: 0.82em; overflow-y: auto; }
-        .advent-scroll { max-height: 100px; border-left: 4px solid var(--advent); background: #0a0800; }
+        /* IMPROVED SCROLL BOXES */
+        .box { background: #000; padding: 10px; border-radius: 8px; border: 1px solid #222; margin: 8px 0; font-size: 0.82em; overflow-y: auto; position: relative; }
+        .advent-scroll { max-height: 100px; border-left: 4px solid var(--advent); background: #0a0800; scroll-behavior: auto; }
 
         #page-inv { display: none; padding: 20px; }
         .inv-wrapper { display: flex; gap: 12px; overflow-x: auto; padding-bottom: 20px; }
@@ -30,7 +30,7 @@
         .inv-item { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid #111; font-size: 0.85em; }
         
         ::-webkit-scrollbar { width: 4px; }
-        ::-webkit-scrollbar-thumb { background: #333; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb { background: #444; border-radius: 10px; }
     </style>
 </head>
 <body>
@@ -56,7 +56,7 @@
     <script>
         let players = {};
         let selectedPlayer = "";
-        let scrollStates = {}; // TRACK SCROLL POSITIONS
+        let scrollCache = new Map();
 
         function formatTime(s) {
             if (s <= 0) return "READY";
@@ -66,10 +66,12 @@
 
         async function sync() {
             try {
-                // SAVE SCROLL POSITIONS BEFORE RE-RENDER
-                document.querySelectorAll('.advent-scroll').forEach(box => {
-                    const id = box.getAttribute('data-player');
-                    scrollStates[id] = box.scrollTop;
+                // 1. Capture positions before wipe
+                document.querySelectorAll('.advent-scroll').forEach(el => {
+                    const name = el.getAttribute('data-player');
+                    // Check if scrolled to very bottom
+                    const isAtBottom = el.scrollHeight - el.scrollTop <= el.clientHeight + 5;
+                    scrollCache.set(name, isAtBottom ? 'BOTTOM' : el.scrollTop);
                 });
 
                 const res = await fetch('/api/data');
@@ -93,7 +95,7 @@
 
                             ${adventItems ? `
                             <div class="box advent-scroll" data-player="${name}">
-                                <div style="color:var(--advent); font-weight:bold; font-size:0.7em; margin-bottom:5px;">ADVENT HISTORY</div>
+                                <div style="color:var(--advent); font-weight:bold; font-size:0.7em; margin-bottom:5px; position:sticky; top:0; background:#000;">ADVENT HISTORY</div>
                                 ${adventItems}
                             </div>` : ''}
 
@@ -118,14 +120,23 @@
 
                             <div class="stat-row" style="margin-top:10px; border-top:1px solid #222; padding-top:10px;"><span>🔨 HUMBUG</span> <b>${formatTime(p.humbug_raw)}</b></div>
                             <div class="stat-row"><span>🛷 SLEIGHBALL</span> <b>${formatTime(p.sleigh_raw)}</b></div>
+                            <div class="stat-row"><span>⭐ STAR CATCH</span> <b>${formatTime(p.star_raw)}</b></div>
+                            <div class="stat-row" style="color:#444; font-size:0.75em; margin-top:5px;"><span>🕒 SCRIPT UPTIME</span> <b>${formatTime(p.uptime_raw)}</b></div>
                         </div>`;
                 }
                 grid.innerHTML = html;
 
-                // RESTORE SCROLL POSITIONS AFTER RE-RENDER
-                document.querySelectorAll('.advent-scroll').forEach(box => {
-                    const id = box.getAttribute('data-player');
-                    if(scrollStates[id]) box.scrollTop = scrollStates[id];
+                // 2. Restore positions after render
+                requestAnimationFrame(() => {
+                    document.querySelectorAll('.advent-scroll').forEach(el => {
+                        const name = el.getAttribute('data-player');
+                        const pos = scrollCache.get(name);
+                        if (pos === 'BOTTOM') {
+                            el.scrollTop = el.scrollHeight;
+                        } else if (pos !== undefined) {
+                            el.scrollTop = pos;
+                        }
+                    });
                 });
 
                 if(selectedPlayer) updateInvUI();
