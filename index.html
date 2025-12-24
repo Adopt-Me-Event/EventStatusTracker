@@ -5,26 +5,32 @@
     <title>EVENTSPLOIT WINTER TRACKER</title>
     <style>
         :root { --neon: #00ff66; --bg: #000; --card: #0d0d0d; --border: #1a1a1a; --advent: #ffcc00; --blue: #0088ff; --purple: #bf00ff; }
-        body { background: var(--bg); color: white; font-family: 'Segoe UI', sans-serif; margin: 0; }
+        body { background: var(--bg); color: white; font-family: 'Segoe UI', sans-serif; margin: 0; overflow-x: hidden; }
         .header { padding: 20px; border-bottom: 1px solid var(--border); text-align: center; }
         .header h1 { color: var(--neon); margin: 0; letter-spacing: 2px; text-transform: uppercase; }
         
         .tab-bar { display: flex; justify-content: center; gap: 10px; margin: 15px 0; }
-        .tab { padding: 10px 25px; cursor: pointer; background: #111; border: 1px solid #222; border-radius: 6px; color: #666; font-weight: bold; }
+        .tab { padding: 10px 25px; cursor: pointer; background: #111; border: 1px solid #222; border-radius: 6px; color: #666; font-weight: bold; transition: 0.2s; }
         .tab.active { background: var(--neon); color: black; }
 
         #grid { display: flex; flex-wrap: wrap; justify-content: center; gap: 15px; padding: 20px; }
-        .card { background: var(--card); border: 1px solid var(--border); padding: 18px; border-radius: 12px; width: 340px; cursor: pointer; }
+        .card { background: var(--card); border: 1px solid var(--border); padding: 18px; border-radius: 12px; width: 340px; cursor: pointer; position: relative; }
         .player-name { color: var(--neon); font-size: 1.6em; font-weight: bold; margin: 0; }
         .loc-label { color: #555; font-size: 0.85em; margin-bottom: 8px; }
         .stat-row { display: flex; justify-content: space-between; margin: 5px 0; }
-        .box { background: #000; padding: 10px; border-radius: 8px; border: 1px solid #222; margin: 8px 0; font-size: 0.82em; }
+        
+        /* THE SCROLLABLE BOXES */
+        .box { background: #000; padding: 10px; border-radius: 8px; border: 1px solid #222; margin: 8px 0; font-size: 0.82em; overflow-y: auto; }
+        .advent-scroll { max-height: 100px; border-left: 4px solid var(--advent); background: #0a0800; }
 
         #page-inv { display: none; padding: 20px; }
         .inv-wrapper { display: flex; gap: 12px; overflow-x: auto; padding-bottom: 20px; }
         .inv-col { background: #0a0a0a; border: 1px solid #222; padding: 15px; border-radius: 10px; min-width: 250px; height: 75vh; overflow-y: auto; }
-        .inv-col h3 { color: var(--neon); border-bottom: 1px solid #222; padding-bottom: 8px; font-size: 0.9em; }
+        .inv-col h3 { color: var(--neon); border-bottom: 1px solid #222; padding-bottom: 8px; font-size: 0.9em; margin-top: 0; }
         .inv-item { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid #111; font-size: 0.85em; }
+        
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-thumb { background: #333; border-radius: 10px; }
     </style>
 </head>
 <body>
@@ -37,7 +43,7 @@
     <div id="page-alts"><div id="grid"></div></div>
 
     <div id="page-inv">
-        <h2 id="inv-title" style="text-align:center; color:var(--neon);">SELECT AN ALT TO VIEW</h2>
+        <h2 id="inv-title" style="text-align:center; color:var(--neon);">SELECT AN ALT CARD</h2>
         <div class="inv-wrapper">
             <div class="inv-col"><h3>Pets</h3><div id="list-pets"></div></div>
             <div class="inv-col"><h3>Gifts</h3><div id="list-gifts"></div></div>
@@ -50,6 +56,7 @@
     <script>
         let players = {};
         let selectedPlayer = "";
+        let scrollStates = {}; // TRACK SCROLL POSITIONS
 
         function formatTime(s) {
             if (s <= 0) return "READY";
@@ -59,6 +66,12 @@
 
         async function sync() {
             try {
+                // SAVE SCROLL POSITIONS BEFORE RE-RENDER
+                document.querySelectorAll('.advent-scroll').forEach(box => {
+                    const id = box.getAttribute('data-player');
+                    scrollStates[id] = box.scrollTop;
+                });
+
                 const res = await fetch('/api/data');
                 players = await res.json();
                 const grid = document.getElementById('grid');
@@ -66,8 +79,8 @@
                 
                 for(let name in players) {
                     const p = players[name];
-                    const adventList = (p.adventRewards || []).map(r => `<div style="border-bottom:1px solid #222; padding:2px 0; color:#ddd;">${r}</div>`).join('');
-                    const rewardList = (p.rewards?.results || []).map(r => `<div class="stat-row"><span>${r.t}</span><b>${r.v}</b></div>`).join('');
+                    const adventItems = (p.adventRewards || []).map(r => `<div style="border-bottom:1px solid #1a1a1a; padding:3px 0; color:#ccc;">${r}</div>`).join('');
+                    const gameResults = (p.rewards?.results || []).map(r => `<div class="stat-row"><span>${r.t}</span><b>${r.v}</b></div>`).join('');
 
                     html += `
                         <div class="card" onclick="selectAlt('${name}')">
@@ -78,9 +91,10 @@
                             <div class="stat-row"><span>GINGERBREAD</span> <b>${p.gingerbread.toLocaleString()}</b></div>
                             <div class="stat-row" style="color:var(--advent);"><span>📅 NEXT ADVENT</span> <b>${formatTime(p.advent_raw)}</b></div>
 
-                            ${adventList ? `<div class="box" style="border-left:4px solid var(--advent); max-height:80px; overflow-y:auto; background:#111;">
-                                <div style="color:var(--advent); font-weight:bold; font-size:0.75em; margin-bottom:4px;">ADVENT UNLOCKS</div>
-                                ${adventList}
+                            ${adventItems ? `
+                            <div class="box advent-scroll" data-player="${name}">
+                                <div style="color:var(--advent); font-weight:bold; font-size:0.7em; margin-bottom:5px;">ADVENT HISTORY</div>
+                                ${adventItems}
                             </div>` : ''}
 
                             ${p.minigame?.active ? `<div class="box" style="border-left:4px solid var(--blue);">
@@ -91,15 +105,15 @@
 
                             ${p.humbugGame?.active ? `<div class="box" style="border-left:4px solid var(--purple);">
                                 <div style="color:var(--purple); font-weight:bold;">HUMBUG HUNT</div>
-                                ${p.humbugGame.hint ? `<div style="background:#221133; padding:4px; text-align:center; color:#e199ff; border-radius:4px; margin:4px 0;">${p.humbugGame.hint}</div>` : ''}
+                                ${p.humbugGame.hint ? `<div style="background:#221133; padding:4px; text-align:center; color:#e199ff; border-radius:4px; margin-bottom:5px;">${p.humbugGame.hint}</div>` : ''}
                                 <div class="stat-row"><span>TIMER</span> <b>${p.humbugGame.timer}</b></div>
                                 <div class="stat-row"><span>LEFT</span> <b>${p.humbugGame.left}</b></div>
                             </div>` : ''}
 
                             ${p.rewards?.active ? `<div class="box" style="border-left:4px solid var(--neon);">
-                                <div style="color:var(--neon); font-weight:bold;">RESULTS</div>
-                                ${rewardList}
-                                <div style="text-align:right; color:var(--advent); font-weight:bold; border-top:1px solid #222; margin-top:5px;">${p.rewards.finalReward}</div>
+                                <div style="color:var(--neon); font-weight:bold;">REWARDS</div>
+                                ${gameResults}
+                                <div style="text-align:right; color:var(--advent); font-weight:bold; margin-top:5px; border-top:1px solid #222;">${p.rewards.finalReward}</div>
                             </div>` : ''}
 
                             <div class="stat-row" style="margin-top:10px; border-top:1px solid #222; padding-top:10px;"><span>🔨 HUMBUG</span> <b>${formatTime(p.humbug_raw)}</b></div>
@@ -107,6 +121,13 @@
                         </div>`;
                 }
                 grid.innerHTML = html;
+
+                // RESTORE SCROLL POSITIONS AFTER RE-RENDER
+                document.querySelectorAll('.advent-scroll').forEach(box => {
+                    const id = box.getAttribute('data-player');
+                    if(scrollStates[id]) box.scrollTop = scrollStates[id];
+                });
+
                 if(selectedPlayer) updateInvUI();
             } catch(e) {}
         }
@@ -124,7 +145,8 @@
             const map = {'pets':'list-pets', 'gifts':'list-gifts', 'toys':'list-toys', 'transport':'list-transport', 'pet_accessories':'list-acc'};
             for(let key in map) {
                 let h = "";
-                if(inv[key]) for(let id in inv[key]) h += `<div class="inv-item"><span>${id}</span><b>x${inv[key][id]}</b></div>`;
+                const items = inv[key];
+                if(items) for(let id in items) h += `<div class="inv-item"><span>${id}</span><b>x${items[id]}</b></div>`;
                 document.getElementById(map[key]).innerHTML = h || "None";
             }
         }
