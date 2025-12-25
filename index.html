@@ -19,15 +19,16 @@
         .loc-label { color: #555; font-size: 0.85em; margin-bottom: 8px; font-weight: bold; }
         .stat-row { display: flex; justify-content: space-between; margin: 5px 0; }
         
-        /* IMPROVED SCROLL BOXES */
-        .box { background: #000; padding: 10px; border-radius: 8px; border: 1px solid #222; margin: 8px 0; font-size: 0.82em; overflow-y: auto; position: relative; }
-        .advent-scroll { max-height: 100px; border-left: 4px solid var(--advent); background: #0a0800; scroll-behavior: auto; }
+        .box { background: #000; padding: 10px; border-radius: 8px; border: 1px solid #222; margin: 8px 0; font-size: 0.82em; overflow-y: auto; }
+        .advent-scroll { max-height: 100px; border-left: 4px solid var(--advent); background: #0a0800; }
 
         #page-inv { display: none; padding: 20px; }
         .inv-wrapper { display: flex; gap: 12px; overflow-x: auto; padding-bottom: 20px; }
         .inv-col { background: #0a0a0a; border: 1px solid #222; padding: 15px; border-radius: 10px; min-width: 250px; height: 75vh; overflow-y: auto; }
         .inv-col h3 { color: var(--neon); border-bottom: 1px solid #222; padding-bottom: 8px; font-size: 0.9em; margin-top: 0; }
-        .inv-item { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid #111; font-size: 0.85em; }
+        .inv-item { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #111; font-size: 0.85em; }
+        .inv-item span { color: #eee; font-weight: 500; }
+        .inv-item b { color: var(--neon); font-family: monospace; font-size: 1.1em; }
         
         ::-webkit-scrollbar { width: 4px; }
         ::-webkit-scrollbar-thumb { background: #444; border-radius: 10px; }
@@ -43,7 +44,7 @@
     <div id="page-alts"><div id="grid"></div></div>
 
     <div id="page-inv">
-        <h2 id="inv-title" style="text-align:center; color:var(--neon);">SELECT AN ALT CARD</h2>
+        <h2 id="inv-title" style="text-align:center; color:var(--neon);">SELECT AN ALT</h2>
         <div class="inv-wrapper">
             <div class="inv-col"><h3>Pets</h3><div id="list-pets"></div></div>
             <div class="inv-col"><h3>Gifts</h3><div id="list-gifts"></div></div>
@@ -66,77 +67,55 @@
 
         async function sync() {
             try {
-                // 1. Capture positions before wipe
+                // Save scroll positions
                 document.querySelectorAll('.advent-scroll').forEach(el => {
-                    const name = el.getAttribute('data-player');
-                    // Check if scrolled to very bottom
-                    const isAtBottom = el.scrollHeight - el.scrollTop <= el.clientHeight + 5;
-                    scrollCache.set(name, isAtBottom ? 'BOTTOM' : el.scrollTop);
+                    scrollCache.set(el.getAttribute('data-player'), el.scrollTop);
                 });
 
                 const res = await fetch('/api/data');
-                players = await res.json();
+                const rawData = await res.json();
+                
+                // FILTER: Only show players active in the last 15 seconds
+                const now = Math.floor(Date.now() / 1000);
+                players = {};
+                for(let name in rawData) {
+                    if (now - rawData[name].lastUpdate < 15) {
+                        players[name] = rawData[name];
+                    }
+                }
+
                 const grid = document.getElementById('grid');
                 let html = "";
                 
                 for(let name in players) {
                     const p = players[name];
-                    const adventItems = (p.adventRewards || []).map(r => `<div style="border-bottom:1px solid #1a1a1a; padding:3px 0; color:#ccc;">${r}</div>`).join('');
-                    const gameResults = (p.rewards?.results || []).map(r => `<div class="stat-row"><span>${r.t}</span><b>${r.v}</b></div>`).join('');
-
                     html += `
                         <div class="card" onclick="selectAlt('${name}')">
                             <h2 class="player-name">${name}</h2>
-                            <div class="loc-label">📍 ${p.location || "Main Map"}</div>
-                            
+                            <div class="loc-label">📍 ${p.location}</div>
                             <div class="stat-row"><span>BUCKS</span> <b>${p.bucks.toLocaleString()}</b></div>
                             <div class="stat-row"><span>GINGERBREAD</span> <b>${p.gingerbread.toLocaleString()}</b></div>
-                            <div class="stat-row" style="color:var(--advent);"><span>📅 NEXT ADVENT</span> <b>${formatTime(p.advent_raw)}</b></div>
 
-                            ${adventItems ? `
                             <div class="box advent-scroll" data-player="${name}">
-                                <div style="color:var(--advent); font-weight:bold; font-size:0.7em; margin-bottom:5px; position:sticky; top:0; background:#000;">ADVENT HISTORY</div>
-                                ${adventItems}
-                            </div>` : ''}
+                                <div style="color:var(--advent); font-weight:bold; font-size:0.75em; margin-bottom:5px; position:sticky; top:0; background:#000;">ADVENT UNLOCKS</div>
+                                ${(p.adventRewards || []).map(r => `<div style="border-bottom:1px solid #1a1a1a; padding:3px 0; color:#ccc;">${r}</div>`).join('')}
+                            </div>
 
-                            ${p.minigame?.active ? `<div class="box" style="border-left:4px solid var(--blue);">
-                                <div style="color:var(--blue); font-weight:bold;">${p.minigame.title}</div>
-                                <div class="stat-row"><span>TIME</span> <b>${p.minigame.timer}</b></div>
-                                <div class="stat-row"><span>SCORE</span> <b>${p.minigame.score}</b></div>
-                            </div>` : ''}
-
-                            ${p.humbugGame?.active ? `<div class="box" style="border-left:4px solid var(--purple);">
-                                <div style="color:var(--purple); font-weight:bold;">HUMBUG HUNT</div>
-                                ${p.humbugGame.hint ? `<div style="background:#221133; padding:4px; text-align:center; color:#e199ff; border-radius:4px; margin-bottom:5px;">${p.humbugGame.hint}</div>` : ''}
-                                <div class="stat-row"><span>TIMER</span> <b>${p.humbugGame.timer}</b></div>
-                                <div class="stat-row"><span>LEFT</span> <b>${p.humbugGame.left}</b></div>
-                            </div>` : ''}
-
-                            ${p.rewards?.active ? `<div class="box" style="border-left:4px solid var(--neon);">
-                                <div style="color:var(--neon); font-weight:bold;">REWARDS</div>
-                                ${gameResults}
-                                <div style="text-align:right; color:var(--advent); font-weight:bold; margin-top:5px; border-top:1px solid #222;">${p.rewards.finalReward}</div>
-                            </div>` : ''}
+                            ${p.minigame?.active ? `<div class="box" style="border-left:4px solid var(--blue);"><div style="color:var(--blue); font-weight:bold;">${p.minigame.title}</div><div class="stat-row"><span>TIME</span><b>${p.minigame.timer}</b></div><div class="stat-row"><span>SCORE</span><b>${p.minigame.score}</b></div></div>` : ''}
+                            ${p.humbugGame?.active ? `<div class="box" style="border-left:4px solid var(--purple);"><div style="color:var(--purple); font-weight:bold;">HUMBUG</div><div style="background:#221133; padding:4px; text-align:center; color:#e199ff; border-radius:4px;">${p.humbugGame.hint}</div><div class="stat-row"><span>LEFT</span><b>${p.humbugGame.left}</b></div></div>` : ''}
 
                             <div class="stat-row" style="margin-top:10px; border-top:1px solid #222; padding-top:10px;"><span>🔨 HUMBUG</span> <b>${formatTime(p.humbug_raw)}</b></div>
                             <div class="stat-row"><span>🛷 SLEIGHBALL</span> <b>${formatTime(p.sleigh_raw)}</b></div>
                             <div class="stat-row"><span>⭐ STAR CATCH</span> <b>${formatTime(p.star_raw)}</b></div>
-                            <div class="stat-row" style="color:#444; font-size:0.75em; margin-top:5px;"><span>🕒 SCRIPT UPTIME</span> <b>${formatTime(p.uptime_raw)}</b></div>
+                            <div class="stat-row" style="color:#444; font-size:0.75em;"><span>🕒 UPTIME</span> <b>${formatTime(p.uptime_raw)}</b></div>
                         </div>`;
                 }
-                grid.innerHTML = html;
+                grid.innerHTML = html || "<h2 style='color:#333; text-align:center; width:100%; margin-top:50px;'>NO ACTIVE ALTS DETECTED</h2>";
 
-                // 2. Restore positions after render
-                requestAnimationFrame(() => {
-                    document.querySelectorAll('.advent-scroll').forEach(el => {
-                        const name = el.getAttribute('data-player');
-                        const pos = scrollCache.get(name);
-                        if (pos === 'BOTTOM') {
-                            el.scrollTop = el.scrollHeight;
-                        } else if (pos !== undefined) {
-                            el.scrollTop = pos;
-                        }
-                    });
+                // Restore scrolls
+                document.querySelectorAll('.advent-scroll').forEach(el => {
+                    const pos = scrollCache.get(el.getAttribute('data-player'));
+                    if (pos) el.scrollTop = pos;
                 });
 
                 if(selectedPlayer) updateInvUI();
@@ -145,7 +124,7 @@
 
         function selectAlt(name) {
             selectedPlayer = name;
-            document.getElementById('inv-title').innerText = "Inventory: " + name;
+            document.getElementById('inv-title').innerText = "Inventory for: " + name;
             updateInvUI();
             showPage('inv');
         }
@@ -156,9 +135,15 @@
             const map = {'pets':'list-pets', 'gifts':'list-gifts', 'toys':'list-toys', 'transport':'list-transport', 'pet_accessories':'list-acc'};
             for(let key in map) {
                 let h = "";
-                const items = inv[key];
-                if(items) for(let id in items) h += `<div class="inv-item"><span>${id}</span><b>x${items[id]}</b></div>`;
-                document.getElementById(map[key]).innerHTML = h || "None";
+                const categoryItems = inv[key];
+                if(categoryItems) {
+                    // Sorting alphabetically
+                    const sortedNames = Object.keys(categoryItems).sort();
+                    for(let itemName of sortedNames) {
+                        h += `<div class="inv-item"><span>${itemName}</span><b>x${categoryItems[itemName]}</b></div>`;
+                    }
+                }
+                document.getElementById(map[key]).innerHTML = h || "<div style='color:#222; text-align:center;'>Empty</div>";
             }
         }
 
